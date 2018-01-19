@@ -10,6 +10,8 @@
 #define HELLO_BIT 6
 #define RELAY_BIT 7
 
+#define LAMP_X1 1
+#define LAMP_Y1 3
 #define DRUM_X1_START 1
 #define DRUM_X2_START 2
 #define DRUM_Y1_START 3
@@ -32,12 +34,12 @@ bool is_global(byte* msg);
 bool to_set_as_relay(byte* msg);
 bool is_hello(byte* msg);
 bool to_be_relayed(byte* msg);
-int get_drum_x(byte* msg, size_t drum_index);
-int get_drum_y(byte* msg, size_t drum_index);
+float get_drum_x(byte* msg, size_t drum_index);
+float get_drum_y(byte* msg, size_t drum_index);
 size_t get_drum_colour(byte* msg, size_t drum_index, size_t colour);
-size_t get_wavelength(byte* msg);
-size_t get_period(byte* msg);
-size_t get_expiry(byte* msg);
+float get_wavelength(byte* msg);
+int get_period(byte* msg);
+int get_expiry(byte* msg);
 bool addressed_to_id(byte* msg, byte* id);
 size_t get_drum_id(byte* msg);
-int get_hit_intensity(byte* msg);
+float get_hit_intensity(byte* msg);

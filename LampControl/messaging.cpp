@@ -52,28 +52,28 @@ bool to_be_relayed(byte* msg) {
   return msg[0] & (1 << RELAY_BIT);
 }
 
-int get_drum_x(byte* msg, size_t drum_index) {
-  return msg[4 * drum_index + DRUM_X1_START] << 8 | msg[4 * drum_index + DRUM_X2_START];
+float get_drum_x(byte* msg, size_t drum_index) {
+  return (msg[4 * drum_index + DRUM_X1_START] << 8 | msg[4 * drum_index + DRUM_X2_START]) / 10.0;
 }
 
-int get_drum_y(byte* msg, size_t drum_index) {
-  return msg[4 * drum_index + DRUM_Y1_START] << 8 | msg[4 * drum_index + DRUM_Y2_START];
+float get_drum_y(byte* msg, size_t drum_index) {
+  return (msg[4 * drum_index + DRUM_Y1_START] << 8 | msg[4 * drum_index + DRUM_Y2_START]) / 10.0;
 }
 
 size_t get_drum_colour(byte* msg, size_t drum_index, size_t colour) {  // colour maps as 0 (R), 1 (G) and 2 (B)
   return msg[3 * drum_index + colour + COLOUR_START_BYTE];
 }
 
-size_t get_wavelength(byte* msg) {
-  return msg[WAVELENGTH_BYTE];
+float get_wavelength(byte* msg) {
+  return msg[WAVELENGTH_BYTE] / 10.0;
 }
 
-size_t get_period(byte* msg) {
-  return msg[PERIOD_BYTE];
+int get_period(byte* msg) {
+  return msg[PERIOD_BYTE] * 100;
 }
 
-size_t get_expiry(byte* msg) {
-  return msg[EXPIRY_BYTE];
+int get_expiry(byte* msg) {
+  return msg[EXPIRY_BYTE] * 100;
 }
 
 bool addressed_to_id(byte* msg, byte* id) {
@@ -85,11 +85,12 @@ bool addressed_to_id(byte* msg, byte* id) {
   return true;
 }
 
+// For drum hits
 size_t get_drum_id(byte* msg) {
   return msg[1];
 }
 
-int get_hit_intensity(byte* msg) {
+float get_hit_intensity(byte* msg) {
   return msg[2] << 8 | msg[3];
 }
 
