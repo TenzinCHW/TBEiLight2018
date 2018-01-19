@@ -1,15 +1,5 @@
 #include "messaging.h"
 
-#define SETUP_REQ_MSG 0
-#define SETUP_MSG 1
-#define SETUP_ACK 2
-#define DRUM_HIT_MSG 3
-
-#define RELAY_BIT 7
-#define HELLO_BIT 6
-#define SET_AS_RELAY 3
-#define GLOBAL_BIT 2
-
 // ==== PACKING MSG ==== //
 
 void set_relay_bit(byte* msg) {
@@ -47,43 +37,43 @@ size_t get_msg_type(byte* msg) {
 }
 
 bool is_global(byte* msg) {
-  return msg[0] & (1 << 2);
+  return msg[0] & (1 << GLOBAL_BIT);
 }
 
 bool to_set_as_relay(byte* msg) {
-  return msg[0] & (1 << 3);
+  return msg[0] & (1 << SET_AS_RELAY);
 }
 
 bool is_hello(byte* msg) {
-  return msg[0] & (1 << 6);
+  return msg[0] & (1 << HELLO_BIT);
 }
 
 bool to_be_relayed(byte* msg) {
-  return msg[0] & (1 << 7);
+  return msg[0] & (1 << RELAY_BIT);
 }
 
 int get_drum_x(byte* msg, size_t drum_index) {
-  return msg[4 * drum_index + 1] << 8 | msg[4 * drum_index + 2];
+  return msg[4 * drum_index + DRUM_X1_START] << 8 | msg[4 * drum_index + DRUM_X2_START];
 }
 
 int get_drum_y(byte* msg, size_t drum_index) {
-  return msg[4 * drum_index + 3] << 8 | msg[4 * drum_index + 4];
+  return msg[4 * drum_index + DRUM_Y1_START] << 8 | msg[4 * drum_index + DRUM_Y2_START];
 }
 
 size_t get_drum_colour(byte* msg, size_t drum_index, size_t colour) {  // colour maps as 0 (R), 1 (G) and 2 (B)
-  return msg[3 * drum_index + colour + 17];  // drum colours start on 18th byte, may want to put this as #define at the top
+  return msg[3 * drum_index + colour + COLOUR_START_BYTE];
 }
 
 size_t get_wavelength(byte* msg) {
-  return msg[29];
+  return msg[WAVELENGTH_BYTE];
 }
 
 size_t get_period(byte* msg) {
-  return msg[30];
+  return msg[PERIOD_BYTE];
 }
 
 size_t get_expiry(byte* msg) {
-  return msg[31];
+  return msg[EXPIRY_BYTE];
 }
 
 bool addressed_to_id(byte* msg, byte* id) {
