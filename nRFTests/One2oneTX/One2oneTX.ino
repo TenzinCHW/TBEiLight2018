@@ -5,7 +5,7 @@
 
 #include <Wire.h>
 
-#define PACKET_SZ 20
+#define PACKET_SZ 32
 
 int address = 0x28; // 28 is the address
 byte byte1, byte2, byte3, byte4;
@@ -32,7 +32,7 @@ void setup()
   printf_begin();
   radio.setRetries(15,15);
   radio.enableDynamicPayloads();
-  radio.setDataRate(RF24_250KBPS);
+  radio.setDataRate(RF24_2MBPS);
   radio.openWritingPipe(ADDRESS0);
   radio.openReadingPipe(0,ADDRESS0);
   radio.stopListening();
@@ -42,12 +42,12 @@ void setup()
     transmitter1_data.stuff[i] = i;
     meow[i] = i;
   }
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 40; i++) {
 //    transmitter1_data.stuff[PACKET_SZ-1] = i;
     meow[PACKET_SZ-1] = i;
 //    radio.write(&transmitter1_data, sizeof(transmitter1_data));
     radio.write(&meow, sizeof(meow));
-    delay(25);
+    delay(20);
   }
 }
 

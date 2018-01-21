@@ -121,17 +121,6 @@ void loop()
 
     if (pip == 2 && pload_width_now == sizeof(transmitter2_data))
     {
-      memcpy(&transmitter2_data, rx_buf, sizeof(transmitter2_data));
-
-
-
-
-      Serial.print(" Pressure//temp//status ");
-      Serial.print(transmitter2_data.p1);
-      Serial.print(" // ");
-      Serial.print(transmitter2_data.t1);
-      Serial.print(" // ");
-      Serial.print(transmitter2_data.s1);
 
     }
 
@@ -156,6 +145,6 @@ void loop()
     Serial.println("");
   }
 
-  delay(100);
+  //  delay(100);
 
 }
