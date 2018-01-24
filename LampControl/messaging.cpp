@@ -25,14 +25,14 @@ byte make_glob_req() {
 }
 
 void copy_id(byte* buf, byte* id) {
-  for (int i = 0; i < 3; i++) {
+  for (uint8_t i = 0; i < 3; i++) {
     buf[i] = id[i];
   }
 }
 
 // ==== PARSING MSG ==== //
 
-size_t get_msg_type(byte* msg) {
+uint8_t get_msg_type(byte* msg) {
   return msg[0] & 0b11;
 }
 
@@ -52,15 +52,15 @@ bool to_be_relayed(byte* msg) {
   return msg[0] & (1 << RELAY_BIT);
 }
 
-float get_drum_x(byte* msg, size_t drum_index) {
+float get_drum_x(byte* msg, uint8_t drum_index) {
   return (msg[4 * drum_index + DRUM_X1_START] << 8 | msg[4 * drum_index + DRUM_X2_START]) / 10.0;
 }
 
-float get_drum_y(byte* msg, size_t drum_index) {
+float get_drum_y(byte* msg, uint8_t drum_index) {
   return (msg[4 * drum_index + DRUM_Y1_START] << 8 | msg[4 * drum_index + DRUM_Y2_START]) / 10.0;
 }
 
-size_t get_drum_colour(byte* msg, size_t drum_index, size_t colour) {  // colour maps as 0 (R), 1 (G) and 2 (B)
+uint8_t get_drum_colour(byte* msg, uint8_t drum_index, uint8_t colour) {  // colour maps as 0 (R), 1 (G) and 2 (B)
   return msg[3 * drum_index + colour + COLOUR_START_BYTE];
 }
 
@@ -68,16 +68,16 @@ float get_wavelength(byte* msg) {
   return msg[WAVELENGTH_BYTE] / 10.0;
 }
 
-int get_period(byte* msg) {
+uint16_t get_period(byte* msg) {
   return msg[PERIOD_BYTE] * 100;
 }
 
-int get_expiry(byte* msg) {
+uint16_t get_expiry(byte* msg) {
   return msg[EXPIRY_BYTE] * 100;
 }
 
 bool addressed_to_id(byte* msg, byte* id) {
-  for (int i = 0; i < 3; i++) {
+  for (uint8_t i = 0; i < 3; i++) {
     if (msg[i] != id[i]) {
       return false;
     }
@@ -86,11 +86,15 @@ bool addressed_to_id(byte* msg, byte* id) {
 }
 
 // For drum hits
-size_t get_drum_id(byte* msg) {
-  return msg[1];
+uint8_t get_drum_id(byte* msg) {
+  return msg[DRUM_ID_BYTE];
 }
 
 float get_hit_intensity(byte* msg) {
-  return msg[2] << 8 | msg[3];
+  return msg[DRUM_HIT_INTENSITY1] << 8 | msg[DRUM_HIT_INTENSITY2];
+}
+
+uint16_t get_hit_counter(byte* msg) {
+  return msg[DRUM_COUNTER_BYTE + 2] << 8 | msg[DRUM_COUNTER_BYTE + 3];  //msg[DRUM_COUNTER_BYTE] << 24 | msg[DRUM_COUNTER_BYTE + 1] << 16 | 
 }
 
