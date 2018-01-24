@@ -1,150 +1,63 @@
 #include <SPI.h>
 #include <nRF24L01.h>
-#include <RF24.h>
 #include "printf.h"
+#include <RF24.h>
 
 RF24 radio (9, 10);
 
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
-byte pip;
-byte pload_width_now;
-byte newdata;
+
 unsigned char rx_buf[PLOAD_WIDTH] = {0};
-struct dataStruct1 {
-  float p1;
-  float t1;
-  float s1;
-} transmitter1_data;
+unsigned char ADDRESS1[5]  = {0xb1, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
+unsigned char ADDRESS0[5]  = {0xb0, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
 
-struct dataStruct2 {
-  float p1;
-  float t1;
-  float s1;
-} transmitter2_data;
-
-struct dataStruct3 {
-  float p1;
-  float t1;
-  float s1;
-} transmitter3_data;
-
-unsigned char ADDRESS2[1] = {0xb2};
-unsigned char ADDRESS3[1] = {0xb3};
-unsigned char ADDRESS4[1] = {0xb4};
-unsigned char ADDRESS5[1] = {0xb5};
-
-
-unsigned char ADDRESS1[5]  =
-{
-  0xb1, 0x43, 0x88, 0x99, 0x45
-}; // Define a static TX address
-
-unsigned char ADDRESS0[5]  =
-{
-  0xb0, 0x43, 0x88, 0x99, 0x45
-}; // Define a static TX address
-
-void setup()
-{
-
+void setup() {
+  Serial.begin(115200);
   radio.begin();
   printf_begin();
-  Serial.begin(115200);
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
-  radio.openWritingPipe(ADDRESS0);
+  radio.setAutoAck(false);  //  turn off acknowledgements
+  radio.setAddressWidth(5); //  5 byte addresses
+  radio.setRetries(1, 15);
+  radio.setChannel(50);
+  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
+  //  void setRetries(uint8_t delay, uint8_t count);  // for TX code
+  //   * @param delay How long to wait between each retry, in multiples of 250us,
+  //   * max is 15.  0 means 250us, 15 means 4000us.
+  //   * @param count How many retries before giving up, max 15
+  //setChannel(uint8_t channel);  // can choose channel from 0-125
+  //    void setPALevel ( uint8_t level );  //   * RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX
+  //   * The power levels correspond to the following output levels respectively:
+  //   * NRF24L01: -18dBm, -12dBm,-6dBM, and 0dBm
+
+  //  radio.openWritingPipe(ADDRESS0);  // for relay code
   radio.openReadingPipe(0, ADDRESS0);
   radio.openReadingPipe(1, ADDRESS1);
-  radio.openReadingPipe(2, ADDRESS2);
-  radio.openReadingPipe(3, ADDRESS3);
-  radio.openReadingPipe(4, ADDRESS4);
-  radio.openReadingPipe(5, ADDRESS5);
-
 
   radio.startListening();
   radio.printDetails();
   delay(1000);
-
 }
 
-void loop()
-{
-  if ( radio.available(&pip) )
-  {
-
-    // Fetch the payload, and see if this was the last one.
-    pload_width_now = radio.getDynamicPayloadSize();
-
-    // If a corrupt dynamic payload is received, it will be flushed
-    if (!pload_width_now) {
-
-    }
-    else
-    {
-
-      radio.read( rx_buf, pload_width_now );
-
-      newdata = 1;
-
-      // Spew it
-      Serial.print(F("Data on pip= "));
-      Serial.print(pip);
-      Serial.print(F(" Got data size="));
-      Serial.print(pload_width_now);
-      Serial.print(F(" data="));
-      for (byte i = 0; i < pload_width_now; i++)
-      {
-        Serial.print(" ");
-        Serial.print(rx_buf[i]);                              // print rx_buf
-      }
-      Serial.print(" ");
-    }
-  }
-  if (newdata == 1)
-  {
-    newdata = 0;
-
-    if (pip == 1 && pload_width_now == sizeof(transmitter1_data))
-    {
-      memcpy(&transmitter1_data, rx_buf, sizeof(transmitter1_data));
-
-
-      //print content recieved
-      Serial.print(" Pressure//temp//status ");
-      Serial.print(transmitter1_data.p1);
-      Serial.print(" // ");
-      Serial.print(transmitter1_data.t1);
-      Serial.print(" // ");
-      Serial.print(transmitter1_data.s1);
-
-    }
-
-    if (pip == 2 && pload_width_now == sizeof(transmitter2_data))
-    {
-
-    }
-
-    if (pip == 3 && pload_width_now == sizeof(transmitter3_data))
-    {
-      memcpy(&transmitter3_data, rx_buf, sizeof(transmitter3_data));
-
-
-
-
-      Serial.print(" Pressure//temp//status ");
-      Serial.print(transmitter3_data.p1);
-      Serial.print(" // ");
-      Serial.print(transmitter3_data.t1);
-      Serial.print(" // ");
-      Serial.print(transmitter3_data.s1);
-
-    }
-
-
-
-    Serial.println("");
-  }
-
-  //  delay(100);
-
+void loop() {
+  read_if_avail(0, rx_buf);
+  read_if_avail(1, rx_buf);
+  delay(10);
 }
+
+void read_if_avail(uint8_t* pipe_num, uint8_t* buf) {
+  if (radio.available(pipe_num)) {
+    if (radio.getDynamicPayloadSize() < 1) {
+      return;
+    }
+    radio.read(buf, sizeof(buf));
+    print_buffer(buf, PLOAD_WIDTH);
+  }
+}
+
+void print_buffer(uint8_t* buf, uint8_t len) {
+  for (int i = 0; i < len; i++) Serial.print(buf[i]);
+  Serial.println();
+}
+
