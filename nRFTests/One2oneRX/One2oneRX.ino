@@ -30,34 +30,57 @@ void setup() {
   //    void setPALevel ( uint8_t level );  //   * RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX
   //   * The power levels correspond to the following output levels respectively:
   //   * NRF24L01: -18dBm, -12dBm,-6dBM, and 0dBm
-
-  //  radio.openWritingPipe(ADDRESS0);  // for relay code
-  radio.openReadingPipe(0, ADDRESS0);
+  radio.openReadingPipe(0, ADDRESS0); // TODO may want to add reading pipe for both addresses
   radio.openReadingPipe(1, ADDRESS1);
-
   radio.startListening();
   radio.printDetails();
   delay(1000);
 }
 
 void loop() {
-  read_if_avail(0, rx_buf);
-  read_if_avail(1, rx_buf);
-  delay(10);
+//  read_and_reply(0, rx_buf);
+  read_and_reply(1, rx_buf);
+//  read_if_avail(rx_buf);
+//  read_if_avail(rx_buf);
+//  delay(10);
 }
 
-void read_if_avail(uint8_t* pipe_num, uint8_t* buf) {
-  if (radio.available(pipe_num)) {
+void read_if_avail(uint8_t* buf) {
+  if (radio.available()) {
     if (radio.getDynamicPayloadSize() < 1) {
       return;
     }
-    radio.read(buf, sizeof(buf));
+    read_and_flush(buf);
     print_buffer(buf, PLOAD_WIDTH);
   }
+}
+
+void read_and_reply(uint8_t pipe_num, uint8_t* buf) {
+  if (radio.available()) {
+    if (radio.getDynamicPayloadSize() < 1) {
+      return;
+    }
+    read_and_flush(buf);
+    switch (pipe_num) {
+      case 0: broadcast(buf, ADDRESS0);
+      case 1: broadcast(buf, ADDRESS1);
+    }
+  }
+}
+
+void read_and_flush(uint8_t* buf) {
+  radio.read(buf, PLOAD_WIDTH);
+  radio.flush_rx();
+}
+
+void broadcast(uint8_t* buf, unsigned char* address) {
+  radio.stopListening();
+  radio.openWritingPipe(address); // No need to close, just change the address. Only 1 address can be written to at the same time.
+  radio.write(buf, PLOAD_WIDTH);
+  radio.startListening();
 }
 
 void print_buffer(uint8_t* buf, uint8_t len) {
   for (int i = 0; i < len; i++) Serial.print(buf[i]);
   Serial.println();
 }
-
