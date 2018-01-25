@@ -4,10 +4,10 @@
 #define SETUP_MSG 1
 #define SETUP_ACK 2
 #define DRUM_HIT_MSG 3
+#define HELLO_MSG 4
 
-#define GLOBAL_BIT 2
-#define SET_AS_RELAY 3
-#define HELLO_BIT 6
+#define GLOBAL_BIT 3
+#define SET_AS_RELAY 4
 #define RELAY_BIT 7
 
 #define LAMP_X1 1
@@ -36,7 +36,6 @@ void copy_id(byte* buf, byte* id);
 uint8_t get_msg_type(byte* msg);
 bool is_global(byte* msg);
 bool to_set_as_relay(byte* msg);
-bool is_hello(byte* msg);
 bool to_be_relayed(byte* msg);
 float get_drum_x(byte* msg, uint8_t drum_index);
 float get_drum_y(byte* msg, uint8_t drum_index);

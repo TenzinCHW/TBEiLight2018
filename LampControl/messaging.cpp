@@ -33,7 +33,7 @@ void copy_id(byte* buf, byte* id) {
 // ==== PARSING MSG ==== //
 
 uint8_t get_msg_type(byte* msg) {
-  return msg[0] & 0b11;
+  return msg[0] & 0b111;
 }
 
 bool is_global(byte* msg) {
@@ -44,12 +44,8 @@ bool to_set_as_relay(byte* msg) {
   return msg[0] & (1 << SET_AS_RELAY);
 }
 
-bool is_hello(byte* msg) {
-  return msg[0] & (1 << HELLO_BIT);
-}
-
 bool to_be_relayed(byte* msg) {
-  return msg[0] & (1 << RELAY_BIT);
+  return ~((msg[0] >> RELAY_BIT) & 1);
 }
 
 float get_drum_x(byte* msg, uint8_t drum_index) {
