@@ -21,7 +21,7 @@ void setup() {
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 15);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MAX);  // TODO change to RF24_PA_MAX for actual one
   //  void setRetries(uint8_t delay, uint8_t count);  // for TX code
   //   * @param delay How long to wait between each retry, in multiples of 250us,
   //   * max is 15.  0 means 250us, 15 means 4000us.
@@ -34,14 +34,14 @@ void setup() {
   radio.openReadingPipe(1, ADDRESS1);
   radio.startListening();
   radio.printDetails();
+  Serial.println("Receiver");
   delay(1000);
 }
 
 void loop() {
 //  read_and_reply(0, rx_buf);
-  read_and_reply(1, rx_buf);
-//  read_if_avail(rx_buf);
-//  read_if_avail(rx_buf);
+//  read_and_reply(1, rx_buf);
+  read_if_avail(rx_buf);
 //  delay(10);
 }
 

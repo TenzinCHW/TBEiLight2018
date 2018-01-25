@@ -34,32 +34,34 @@ void setup() {
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 5);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MAX);  // TODO change to RF24_PA_MAX for actual one
 //  radio.openWritingPipe(ADDRESS1);
   radio.openReadingPipe(1, ADDRESS1);
   radio.stopListening();
   radio.printDetails();
+  Serial.println("Transmitter");
 
   for (int i = 0; i < PLOAD_WIDTH - 1; i++) {
     transmitter1_data.stuff[i] = i;
     tx_buf[i] = i;
   }
 
-//  for (int i = 0; i < 40; i++) {
-//    //    transmitter1_data.stuff[PLOAD_WIDTH-1] = i;
-//    tx_buf[PLOAD_WIDTH - 1] = i;
-//    //    radio.write(&transmitter1_data, sizeof(transmitter1_data));
+  for (int i = 0; i < 40; i++) {
+    //    transmitter1_data.stuff[PLOAD_WIDTH-1] = i;
+    tx_buf[PLOAD_WIDTH - 1] = i;
+    //    radio.write(&transmitter1_data, sizeof(transmitter1_data));
 //    radio.write(&tx_buf, sizeof(tx_buf));
-//    delay(4);
-//  }
+    broadcast(tx_buf, ADDRESS1);
+    delay(4);
+  }
 
-  radio.startListening();
+//  radio.startListening();
   // To time reply
-  start = millis();
-  broadcast(tx_buf, ADDRESS1);
-  delay(9);
-  read_if_avail(rx_buf);
-  Serial.println(millis() - start);
+//  start = millis();
+//  broadcast(tx_buf, ADDRESS1);
+//  delay(9);
+//  read_if_avail(rx_buf);
+//  Serial.println(millis() - start);
 }
 
 void loop() {
