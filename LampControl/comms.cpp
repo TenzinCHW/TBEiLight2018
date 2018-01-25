@@ -1,23 +1,55 @@
 #include "comms.h"
+#include "printf.h"
 
-byte msg_buf[32];
+RF24 radio(9, 10);
 
-RF24 radio(7, 8);
+unsigned char ADDR1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
+unsigned char ADDR0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 void startup_nRF() {
   radio.begin();
-  radio.setRetries(15,15);  // TODO find out what all this stuff means
-  radio.enableDynamicPayloads();
+  printf_begin();
   radio.setDataRate(RF24_2MBPS);
-  radio.openWritingPipe(ADDRESS0);
-  radio.openReadingPipe(0,ADDRESS0);
-  radio.stopListening();
+  radio.enableDynamicPayloads();
+  radio.setAutoAck(false);  //  turn off acknowledgements
+  //  radio.setAddressWidth(5); //  5 byte addresses
+  radio.setRetries(1, 15);
+  radio.setChannel(50);
+  radio.setPALevel(RF24_PA_MAX);
+  radio.openReadingPipe(0, ADDR0);
+  radio.openReadingPipe(1, ADDR1);
+  radio.startListening();
   radio.printDetails();
 }
 
-void send_msg(byte* msg) {  // TODO figure out a system for sending outward and inward on diff channels because can't read and write to/from channel at same time?
-  // TODO stop listening
-  radio.write(&msg, sizeof(msg));
-  // TODO start listening
+bool read_if_avail(uint8_t* buf) {
+  if (radio.available()) {
+    if (radio.getDynamicPayloadSize() < 1) {
+      return false;
+    }
+    read_and_flush(buf);
+    //    print_buffer(buf, PACKET_SZ);
+    return true;
+  }
 }
 
+void read_and_flush(uint8_t* buf) {
+  radio.read(buf, PACKET_SZ);
+  radio.flush_rx();
+}
+
+void broadcast(uint8_t addr, byte* msg) {
+  radio.stopListening();
+  switch (addr) {
+    case 0 : radio.openWritingPipe(ADDR0);
+    case 1 : radio.openWritingPipe(ADDR1);
+    default: radio.openWritingPipe(ADDR0);
+  }
+  radio.write(&msg, sizeof(msg));
+  radio.startListening();
+}
+
+void print_buffer(uint8_t* buf, uint8_t len) {
+  for (int i = 0; i < len; i++) Serial.print(buf[i]);
+  Serial.println();
+}
