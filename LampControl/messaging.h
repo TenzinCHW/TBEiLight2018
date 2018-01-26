@@ -27,10 +27,9 @@
 
 // ==== PACKING MSG ==== //
 void set_relay_bit(byte* msg);
-byte* make_ack(byte* id);
-byte* make_indiv_req(byte* id);
+byte* make_ack(uint16_t id);
+byte* make_indiv_req(uint16_t id);
 byte make_glob_req();
-void copy_id(byte* buf, byte* id);
 
 // ==== PARSING MSG ==== //
 uint8_t get_msg_type(byte* msg);
@@ -43,7 +42,7 @@ uint8_t get_drum_colour(byte* msg, uint8_t drum_index, uint8_t colour);
 float get_wavelength(byte* msg);
 uint16_t get_period(byte* msg);
 uint16_t get_expiry(byte* msg);
-bool addressed_to_id(byte* msg, byte* id);
+bool addressed_to_id(byte* msg, uint16_t id);
 uint8_t get_drum_id(byte* msg);
 float get_hit_intensity(byte* msg);
 uint16_t get_hit_counter(byte* msg);

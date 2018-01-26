@@ -6,28 +6,22 @@ void set_relay_bit(byte* msg) {
   msg[0] |= (1 << 7);
 }
 
-byte* make_ack(byte* id) {
-  byte ack[4];
+byte* make_ack(uint16_t id) {
+  byte ack[3];
   ack[0] = 0b10;
-  copy_id(&ack[1], id);
+  ack[2] = id;  // id fills in from the back of 2 bits
   return ack;
 }
 
-byte* make_indiv_req(byte* id) {
-  byte req[4];
+byte* make_indiv_req(uint16_t id) {
+  byte req[3];
   req[0] = 1;
-  copy_id(&req[1], id);
+  req[2] = id;
   return req;
 }
 
 byte make_glob_req() {
   return 1 << GLOBAL_BIT;
-}
-
-void copy_id(byte* buf, byte* id) {
-  for (uint8_t i = 0; i < 3; i++) {
-    buf[i] = id[i];
-  }
 }
 
 // ==== PARSING MSG ==== //
@@ -72,13 +66,8 @@ uint16_t get_expiry(byte* msg) {
   return msg[EXPIRY_BYTE] * 100;
 }
 
-bool addressed_to_id(byte* msg, byte* id) {
-  for (uint8_t i = 0; i < 3; i++) {
-    if (msg[i] != id[i]) {
-      return false;
-    }
-  }
-  return true;
+bool addressed_to_id(byte* msg, uint16_t id) {
+  return ((msg[1] << 8) & msg[2]) == id;
 }
 
 // For drum hits
