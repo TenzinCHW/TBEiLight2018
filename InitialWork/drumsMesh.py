@@ -5,7 +5,8 @@ import serial
 ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=0)
 ser.flush()
 
-drum_loc = ((0,0),(0,30.6))
+drum_loc = [[0,0],[0,30.6],[20,10.3],[32,6.5]]
+drum_rgb = [[123,243,10],[0,50,100],[100,100,0],[255,0,0]]
 node_loc = {843321:(0,7.3)} #:(0,20.4), 4
 node_registered = {}
 time_limit = 20
