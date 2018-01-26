@@ -27,11 +27,12 @@ void setup() {
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
-  radio.setAutoAck(false);  //  turn off acknowledgements
+//  radio.setAutoAck(false);  //  turn off acknowledgements
+  radio.setAutoAck(true);
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 5);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MAX);  // TODO change to RF24_PA_MAX for actual one
   radio.openReadingPipe(0, ADDRESS0);
   radio.openReadingPipe(1, ADDRESS1);
   radio.startListening();
@@ -39,29 +40,21 @@ void setup() {
 }
 
 void loop() {
-  read_rebroadcast(0, rx_buf);
-  delay(4);
-  read_rebroadcast(1, rx_buf);
-  delay(4);
+  read_rebroadcast(rx_buf);
 }
 
-void read_rebroadcast(uint8_t pipe_num, uint8_t* buf) {
-  if (radio.available()) {  //if (radio.available(pipe_num)) {
+void read_rebroadcast(uint8_t* buf) {
+  if (radio.available()) {
     if (radio.getDynamicPayloadSize() < 1) {
       return;
     }
     radio.read(buf, PLOAD_WIDTH);
-//    print_buffer(buf, PLOAD_WIDTH);
-    switch (pipe_num) {
-      case 0: rebroadcast(buf, ADDRESS1);
-      case 1: rebroadcast(buf, ADDRESS0);
+    print_buffer(buf, PLOAD_WIDTH);
+    switch ((buf[0] >> 7) & 1) {
+      case 0: broadcast(buf, ADDRESS1);
+      case 1: broadcast(buf, ADDRESS0);
     }
   }
-}
-
-void rebroadcast(uint8_t* buf, unsigned char* address) {
-  buf[0] |= 1 << 7;
-  broadcast(buf, address);
 }
 
 void broadcast(uint8_t* buf, unsigned char* address) {
@@ -71,3 +64,7 @@ void broadcast(uint8_t* buf, unsigned char* address) {
   radio.startListening();
 }
 
+void print_buffer(uint8_t* buf, uint8_t len) {
+  for (int i = 0; i < len; i++) Serial.print(buf[i]);
+  Serial.println();
+}
