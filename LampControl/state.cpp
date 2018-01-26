@@ -1,43 +1,34 @@
 #include "state.h"
 
-bool indiv_var_set = false;
-bool globals_set = false;
-bool is_relay = false;
-uint32_t last_hello = 0;
-uint16_t expiry_time;
-uint32_t time_since_last_glob_req = 0;
-float x;
-float y;
-Drum drums[NUM_OF_DRUMS];
-HitQueue hits;
-float wavelength;
-uint16_t period;
-byte ID[3];
-byte msg_buf[PACKET_SZ];
+State state;
+
+void init_ID() {
+  state.ID = EEPROM.read(0) << 8 | EEPROM.read(1);
+  //  Serial.println(state.ID, DEC);
+}
 
 void main_loop() {
-  if (!(indiv_var_set && globals_set)) {
-    if (!indiv_var_set) {
+  if (!(state.indiv_var_set && state.globals_set)) {
+    if (!state.indiv_var_set) {
       uint8_t num_try = 0;
-      byte* req = make_indiv_req(ID);
-      while (!indiv_var_set && (num_try < RETRY_TIMES)) {
+      byte* req = make_indiv_req(state.ID);
+      while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
         broadcast(1, req);
         delay(10);  // TODO may have to adjust this...
         read_and_handle();
         num_try++;
       }
-      if (!indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
-    } else if (!globals_set && millis() - time_since_last_glob_req > 2000) {
+      if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
+    } else if (!state.globals_set && millis() - state.time_since_last_glob_req > 2000) {
       broadcast(1, make_glob_req());
       read_and_handle();
-      time_since_last_glob_req = millis();
+      state.time_since_last_glob_req = millis();
     }
-  }
-  else {
+  } else {
     // TODO try to listen for reset message from master - should be encrypted (low priority)
     read_and_handle();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
     // TODO update LEDs
-    if (millis() - last_hello > 30000) {
+    if (millis() - state.last_hello > 30000) {
       reset_vars();
       power_down();
     }
@@ -45,22 +36,22 @@ void main_loop() {
 }
 
 void reset_vars() { // resets all variables that need to be reset
-  indiv_var_set = false;
-  globals_set = false;
-  is_relay = false;
-  last_hello = 0;
-  expiry_time = 0;
-  time_since_last_glob_req = 0;
-  x = 0;
-  y = 0;
+  state.indiv_var_set = false;
+  state.globals_set = false;
+  state.is_relay = false;
+  state.last_hello = 0;
+  state.expiry_time = 0;
+  state.time_since_last_glob_req = 0;
+  state.x = 0;
+  state.y = 0;
   for (uint8_t i = 0; i < NUM_OF_DRUMS; i++) {
     Drum drum;
-    drums[i] = drum;
+    state.drums[i] = drum;
   }
-  for (uint8_t i = 0; i < 32; i++) msg_buf[i] = NULL;
-  wavelength = 0;
-  period = 0;
-  while (hits.counter > 0) hits.pop_hit();
+  for (uint8_t i = 0; i < 32; i++) state.msg_buf[i] = NULL;
+  state.wavelength = 0;
+  state.period = 0;
+  while (state.hits.counter > 0) state.hits.pop_hit();
   Timer1.detachInterrupt();
   // Do not reset ID and do not stop listening on radio
   // TODO reset other variables
@@ -73,73 +64,92 @@ void power_down() { // powers down for a few seconds
 }
 
 void read_and_handle() {
-  if (read_if_avail(msg_buf)) {
-    uint8_t msg_type = get_msg_type(msg_buf);
-    if (is_relay && to_be_relayed(msg_buf)) {
-      set_relay_bit(msg_buf);
-      switch (msg_type) {  // check what type of msg - info or hello or drum hit send on ADDR0, req or ack send on ADDR1
-        case SETUP_REQ_MSG : broadcast(1, msg_buf); break;
-        case SETUP_ACK : broadcast(1, msg_buf); break;
-        case DRUM_HIT_MSG : broadcast(0, msg_buf); break;
-        case SETUP_MSG : broadcast(0, msg_buf); break;
-        case HELLO_MSG : broadcast(0, msg_buf); break;
-        default : broadcast(0, msg_buf); break;
-      }
+  if (read_if_avail(state.msg_buf)) {
+    uint8_t msg_type = get_msg_type(state.msg_buf);
+    forward(msg_type);
+    if (msg_type == SETUP_MSG) {
+      if (is_global(state.msg_buf)) global_setup();
+      else if (addressed_to_id(state.msg_buf, state.ID)) indiv_setup();
     }
+  }
+}
+
+void read_drum_hit() {
+  if (read_if_avail(state.msg_buf)) {
+    uint8_t msg_type = get_msg_type(state.msg_buf);
+    forward(msg_type);
     switch (msg_type) {
-      case SETUP_MSG :
-        if (is_global(msg_buf)) global_setup();
-        else if (addressed_to_id(msg_buf, ID)) indiv_setup();
-        break;
       case DRUM_HIT_MSG :
-        last_hello = millis();
-        add_drum_hit(&hits, get_drum_id(msg_buf), get_hit_intensity(msg_buf), get_hit_counter(msg_buf));
+        state.last_hello = millis();
+        add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
         break;
       case HELLO_MSG :
-        last_hello = millis();
+        state.last_hello = millis();
+    }
+  }
+}
+
+void forward(uint8_t msg_type) {
+  if (state.is_relay && to_be_relayed(state.msg_buf)) {
+    set_relay_bit(state.msg_buf);
+    switch (msg_type) {  // check what type of msg - info or hello or drum hit send on ADDR0, req or ack send on ADDR1
+      case SETUP_REQ_MSG : broadcast(1, state.msg_buf); break;
+      case SETUP_ACK : broadcast(1, state.msg_buf); break;
+      case DRUM_HIT_MSG : broadcast(0, state.msg_buf); break;
+      case SETUP_MSG : broadcast(0, state.msg_buf); break;
+      case HELLO_MSG : broadcast(0, state.msg_buf); break;
+      default : broadcast(0, state.msg_buf); break;
     }
   }
 }
 
 void indiv_setup() {
-  x = (msg_buf[LAMP_X1] << 8 | msg_buf[LAMP_X1 + 1]) / 10.0;
-  y = (msg_buf[LAMP_Y1] << 8 | msg_buf[LAMP_Y1 + 1]) / 10.0;
-  is_relay = to_set_as_relay(msg_buf);
+  state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
+  state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
+  state.is_relay = to_set_as_relay(state.msg_buf);
   Timer1.initialize(1000000);
   Timer1.attachInterrupt(remove_old_hits);
-  indiv_var_set = true;
-  broadcast(1, make_ack(ID));
+  state.indiv_var_set = true;
+  broadcast(1, make_ack(state.ID));
 }
 
 void global_setup() {
   for (uint8_t i = 0; i < NUM_OF_DRUMS; i++) {
     Drum newdrum;
-    newdrum.x = get_drum_x(msg_buf, i);
-    newdrum.y = get_drum_y(msg_buf, i);
+    newdrum.x = get_drum_x(state.msg_buf, i);
+    newdrum.y = get_drum_y(state.msg_buf, i);
     for (uint8_t j = 0; j < 3; j++) {
-      newdrum.colour[j] = get_drum_colour(msg_buf, i, j);
+      newdrum.colour[j] = get_drum_colour(state.msg_buf, i, j);
     }
-    drums[i] = newdrum;
+    state.drums[i] = newdrum;
   }
 
-  wavelength = get_wavelength(msg_buf);
-  period = get_period(msg_buf);
-  expiry_time = get_expiry(msg_buf);
-  globals_set = true;
+  state.wavelength = get_wavelength(state.msg_buf);
+  state.period = get_period(state.msg_buf);
+  state.expiry_time = get_expiry(state.msg_buf);
+  state.globals_set = true;
 }
 
 void add_drum_hit(HitQueue* queue, uint8_t drum_id, float intensity, uint16_t counter) {
+  // check if hit is already in buffer before pushing
+  int j;
+  for (int i = state.hits.head; i < state.hits.head + state.hits.counter; i++) {
+    j = i % MAX_HITS;
+    if (state.hits.hits[j].counter == counter && state.hits.hits[j].drum_id == drum_id) {
+      return;
+    }
+  }
   DrumHit hit;
   hit.drum_id = drum_id;
   hit.intensity = intensity;
   hit.incoming_time = millis();
   hit.counter = get_hit_counter(counter);
-  hits.push_hit(hit);
+  state.hits.push_hit(hit);
 }
 
 void remove_old_hits() {
-  while (hits.counter > 0) {
-    if (millis() - hits.hits[hits.head].incoming_time > expiry_time) hits.pop_hit();
+  while (state.hits.counter > 0) {
+    if (millis() - state.hits.hits[state.hits.head].incoming_time > state.expiry_time) state.hits.pop_hit();
     else break;
   }
 }

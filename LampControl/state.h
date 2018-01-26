@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <TimerOne.h>
+#include <EEPROM.h>
 #include "LowPower.h"
 #include "messaging.h"
 #include "comms.h"
@@ -45,10 +46,31 @@ struct HitQueue {
   }
 };
 
+struct State {
+  bool indiv_var_set = false;
+  bool globals_set = false;
+  bool is_relay = false;
+  uint32_t last_hello = 0;
+  uint16_t expiry_time;
+  uint32_t time_since_last_glob_req = 0;
+  float x;
+  float y;
+  Drum drums[NUM_OF_DRUMS];
+  HitQueue hits;
+  float wavelength;
+  uint16_t period;
+  CRGB lights[NUM_LED];
+  uint16_t ID;
+  byte msg_buf[PACKET_SZ];
+};
+
+void init_ID();
 void main_loop();
 void reset_vars();
 void power_down();
 void read_and_handle();
+void read_drum_hit();
+void forward(uint8_t msg_type);
 void indiv_setup();
 void global_setup();
 void add_drum_hit(HitQueue* queue, uint8_t drum_id, float intensity, uint16_t counter);
