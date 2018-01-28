@@ -45,7 +45,7 @@ void broadcast(uint8_t addr, byte* msg) {
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.write(&msg, sizeof(msg));
+  radio.write(&msg, sizeof(msg)); // TODO check if need to retry manually
   radio.startListening();
 }
 

@@ -31,11 +31,11 @@ uint8_t get_msg_type(byte* msg) {
 }
 
 bool is_global(byte* msg) {
-  return msg[0] & (1 << GLOBAL_BIT);
+  return (msg[0] >> GLOBAL_BIT) & 1;
 }
 
 bool to_set_as_relay(byte* msg) {
-  return msg[0] & (1 << SET_AS_RELAY);
+  return (msg[0] >> SET_AS_RELAY) & 1;
 }
 
 bool to_be_relayed(byte* msg) {
@@ -67,7 +67,7 @@ uint16_t get_expiry(byte* msg) {
 }
 
 bool addressed_to_id(byte* msg, uint16_t id) {
-  return ((msg[1] << 8) & msg[2]) == id;
+  return ((msg[1] << 8) | msg[2]) == id;
 }
 
 // For drum hits
@@ -80,6 +80,6 @@ float get_hit_intensity(byte* msg) {
 }
 
 uint16_t get_hit_counter(byte* msg) {
-  return msg[DRUM_COUNTER_BYTE + 2] << 8 | msg[DRUM_COUNTER_BYTE + 3];  //msg[DRUM_COUNTER_BYTE] << 24 | msg[DRUM_COUNTER_BYTE + 1] << 16 | 
+  return msg[DRUM_COUNTER_BYTE] << 8 | msg[DRUM_COUNTER_BYTE + 1];  //msg[DRUM_COUNTER_BYTE] << 24 | msg[DRUM_COUNTER_BYTE + 1] << 16 | 
 }
 
