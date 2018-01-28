@@ -17,12 +17,12 @@ void setup() {
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
-  //      radio.setAutoAck(false);  //  turn off acknowledgements
+  //  radio.setAutoAck(false);  //  turn off acknowledgements
   radio.setAutoAck(true);
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 15);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MAX);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
   //  void setRetries(uint8_t delay, uint8_t count);  // for TX code
   //   * @param delay How long to wait between each retry, in multiples of 250us,
   //   * max is 15.  0 means 250us, 15 means 4000us.
@@ -31,8 +31,8 @@ void setup() {
   //    void setPALevel ( uint8_t level );  //   * RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX
   //   * The power levels correspond to the following output levels respectively:
   //   * NRF24L01: -18dBm, -12dBm,-6dBM, and 0dBm
-  radio.openReadingPipe(0, ADDRESS0); // set to same as transmitter unless using relay
-  //  radio.openReadingPipe(1, ADDRESS1);
+//  radio.openReadingPipe(0, ADDRESS0); // set to same as transmitter unless using relay
+    radio.openReadingPipe(1, ADDRESS1);
   radio.startListening();
   radio.printDetails();
   Serial.println("Receiver");
@@ -40,8 +40,8 @@ void setup() {
 }
 
 void loop() {
-  read_and_reply(0, rx_buf);
-  //  read_and_reply(1, rx_buf);
+//  read_and_reply(0, rx_buf);
+    read_and_reply(1, rx_buf);
   //  read_if_avail(rx_buf);
 }
 
@@ -51,7 +51,7 @@ void read_if_avail(uint8_t* buf) {
       return;
     }
     read_and_flush(buf);
-    //    print_buffer(buf, PLOAD_WIDTH);
+    //        print_buffer(buf, PLOAD_WIDTH);
   }
 }
 
@@ -64,7 +64,7 @@ void read_and_reply(uint8_t pipe_num, uint8_t* buf) {
     switch (pipe_num) {
       case 0: broadcast(buf, ADDRESS0); break;
       case 1: broadcast(buf, ADDRESS1); break;
-//      default: broadcast(buf, ADDRESS0); break;
+        //      default: broadcast(buf, ADDRESS0); break;
     }
   }
 }

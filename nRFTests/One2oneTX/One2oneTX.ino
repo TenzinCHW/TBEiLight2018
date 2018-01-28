@@ -35,7 +35,7 @@ void setup() {
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 5);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MAX);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
   //  radio.openWritingPipe(ADDRESS1);
   radio.openReadingPipe(1, ADDRESS1);
   radio.stopListening();
@@ -73,7 +73,7 @@ void read_if_avail(uint8_t* buf) {
       return;
     }
     radio.read(buf, PLOAD_WIDTH);
-    //    print_buffer(buf, PLOAD_WIDTH);
+    print_buffer(buf, PLOAD_WIDTH);
   }
 }
 
@@ -86,7 +86,7 @@ void wait_for_reply() {
   radio.startListening();
   long total = 0;
   long onemsgtime;
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 1024; i++) {
     start = millis();
     tx_buf[PLOAD_WIDTH - 1] = i;
     broadcast(tx_buf, ADDRESS1);

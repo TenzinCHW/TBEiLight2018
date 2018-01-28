@@ -32,7 +32,7 @@ void setup() {
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 5);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MAX);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
   radio.openReadingPipe(0, ADDRESS0);
   radio.openReadingPipe(1, ADDRESS1);
   radio.startListening();
@@ -51,8 +51,8 @@ void read_rebroadcast(uint8_t* buf) {
     radio.read(buf, PLOAD_WIDTH);
     print_buffer(buf, PLOAD_WIDTH);
     switch ((buf[0] >> 7) & 1) {
-      case 0: broadcast(buf, ADDRESS1);
-      case 1: broadcast(buf, ADDRESS0);
+      case 1: broadcast(buf, ADDRESS1);
+      case 0: broadcast(buf, ADDRESS0);
     }
   }
 }
