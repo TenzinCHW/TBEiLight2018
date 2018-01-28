@@ -14,8 +14,9 @@ void main_loop() {
       byte* req = make_indiv_req(state.ID);
       while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
         broadcast(1, req);
-        delay(10);  // TODO may have to adjust this...
-        read_and_handle();
+        long wait = millis();
+        while (millis() - wait < 1000) read_and_handle();
+//        delay(10);  // TODO may have to adjust this...
         num_try++;
       }
       if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
@@ -25,10 +26,10 @@ void main_loop() {
       state.time_since_last_glob_req = millis();
     }
   } else {
-    // TODO try to listen for reset message from master - should be encrypted (low priority)
+    // TODO encrypted messages (low priority)
     read_and_handle();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
     // TODO update LEDs
-    if (millis() - state.last_hello > 30000) {
+    if (millis() - state.last_hello > 10000) {
       reset_vars();
       power_down();
     }
