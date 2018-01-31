@@ -3,8 +3,8 @@
 
 RF24 radio(9, 10);
 
-unsigned char ADDR1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
-unsigned char ADDR0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
+const unsigned char ADDR1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
+const unsigned char ADDR0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 void startup_nRF() {
   radio.begin();
@@ -45,7 +45,7 @@ void broadcast(uint8_t addr, byte* msg) {
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.write(&msg, sizeof(msg)); // TODO check if need to retry manually
+  radio.write(&msg, sizeof(msg)); // TODO need to use writeFast because it blocks
   radio.startListening();
 }
 
