@@ -1,5 +1,13 @@
 #include <Arduino.h>
 
+/*
+ * Messages are to be parsed with big endianness
+ * Locations in messages are 2-byte long, representing distance in tens of cm (dm)
+ * Time is represented by one byte as hundreds of milliseconds
+ * Colours take up 3 bytes, representing values for R, G and B respectively
+ * Intensity value for drum hit messages are represented by 2 bytes, which will be scaled down by 100
+ */
+
 // HEADER BYTE - MSG TYPE //
 #define SETUP_REQ_MSG 0
 #define SETUP_MSG 1
@@ -28,8 +36,7 @@
 
 // DRUM HIT //
 #define DRUM_ID_BYTE 1
-#define DRUM_HIT_INTENSITY1 2
-#define DRUM_HIT_INTENSITY2 3
+#define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
 
 // ==== PACKING MSG ==== //
