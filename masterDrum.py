@@ -1,10 +1,9 @@
 import time
-from time import sleep, time
+from time import sleep, time, gmtime
 import config
 import serial
 
-ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=0)
-ser.flush()
+ser = serial.Serial('/dev/cu.usbmodem1411', 115200, timeout=None)
 
 # get data from files 
 drum_loc = config.drum_loc
@@ -15,74 +14,85 @@ wavelength = config.wavelength
 period = config.period
 expiry = config.expiry
 
-# init variables
 start_time = time()
-last_global = ''
-counter = 0
 lamp_acks = []
 
 def setup_network():
-    # listen for message
-    # msg = get_msg()
-    # ok gonna mock non-global SR message from lamp 2
-    read = 'g:SR$2'
-    messages = read.strip('!')
-    messages = messages.split('$') 
-    # messages = [['g', 'SR'], ['2']]
-    # if message is global SR
-    if messages[0][0] == 'G' and messages[0][1] == 'SR':
-        send_global_sr()
-    # if message is non-global SR
-    elif messages[0][0] == 'g' and messages[0][1] == 'SR':
-        lamp_id = messages([1][0])
-        send_sr(lamp_id)
-    # if message is non-global SA 
-    elif messages[0][0] == 'g' and messages[0][1] == 'SA':
-        lamp_id = messages([1][0])
-        register_ack(lamp_id)
+    # init variables
+    done = False
+    last_global = 0.0
+    counter = 0
 
-def send_global_sr():
-    # message = dloc1:dloc2:dloc3 $ drgb1:drgb2:drgb3 $ wavelength $ period $ expiry !
+    while not done and not all_acked(): 
+        messages = []
+        # block while listening for msg
+        msg = ser.readline()
+        if msg: 
+            parsed = msg.decode('utf-8').strip('\r\n')
+            messages = parsed.split('$')
+    
+            # if message is global SR
+            if messages[0] == 'G' and messages[1] == 'SR':
+                last_global = send_global_si(last_global)
+            # if message is non-global SR
+            elif messages[0] == 'g' and messages[1] == 'SR':
+                lamp_id = messages[2]
+                send_si(lamp_id)
+            # if message is non-global SA 
+            elif messages[0] == 'g' and messages[1] == 'SA':
+                lamp_id = messages[2]
+                register_ack(lamp_id)
+
+            ser.flush()
+    return True
+
+def send_global_si(last_global):
+    # message = G $ SI $ dloc1:dloc2:dloc3 $ drgb1:drgb2:drgb3 $ wavelength $ period $ expiry \n
     if time() - last_global > 10:
         last_global = time()
-        message = ''
+        message = 'G$SI'
         for loc in drum_loc: 
             message += str(loc[0]) + ',' + str(loc[1]) + ':'
         message += '$'
-        for rgb in drum_loc: 
-            message += str(rgb[0]) + ',' + str(loc[1]) + ',' + str(loc[2]) + ':'
+        for rgb in drum_rgb: 
+            message += str(rgb[0]) + ',' + str(rgb[1]) + ',' + str(rgb[2]) + ':'
         message += '$' + str(wavelength) + '$'
         message += str(period) + '$'
-        message += str(expiry) + '!'
+        message += str(expiry) + '\n'
         send_msg(message)
+        print('global si: ', message)
+        return last_global
 
-def send_sr(lamp_id):
-    # message = lamp_id $ lamp_loc !
+def send_si(lamp_id):
+    # message = lamp_id $ lamp_loc \n
     if lamp_id not in lamp_acks:
-        message = lamp_id + '$' str(lamps.lamp_id[0]) + ',' + str(lamps.lamp_id[0]) + '!' 
+        message = 'g$SI$' + lamp_id + '$' + str(lamps[lamp_id]['loc'][0]) + ',' + str(lamps[lamp_id]['loc'][0]) + '\n' 
         send_msg(message)
+        print('non-global si: ', message)
 
 def register_ack(lamp_id):
     if lamp_id not in lamp_acks:
         lamp_acks.append(lamp_id)
+        print('acked: ', lamp_acks)
+
+def all_acked(): 
+    return len(lamp_acks) == len(lamps)
 
 # listen for drum hits 
-def listening():
-    # message = DrumHit $ drum_id $ intensity $ counter
-    # msg = get_msg
-    read = 'DH$3$20.3$2!'
-    messages = read.strip('!')
-    messages = messages.split('$') 
-    # check if msg type is DH 
-    if messages[0][0] == 'DH':
-        drum_id = messages[0][1]
-
-
-def get_msg():
-    return ser.read()
+# def listening():
+#     # message = DrumHit $ drum_id $ intensity $ counter
+#     # msg = get_msg
+#     read = 'DH$3$20.3$2!'
+#     messages = read.strip('!')
+#     messages = messages.split('$') 
+#     # check if msg type is DH 
+#     if messages[0][0] == 'DH':
+#         drum_id = messages[0][1]
 
 def send_msg(msg):
-    ser.write(msg)
+    out = bytearray(msg, 'utf8')
+    ser.write(out)
+
 
 if __name__ == '__main__':
     while (time() - start_time) < 20: 
