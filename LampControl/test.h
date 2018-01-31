@@ -1,5 +1,11 @@
 #include "state.h"
 
+void all_tests();
+bool test_indiv_setup();
+bool test_global_setup();
+bool test_add_rm_old_drum_hits();
+void assert_true(bool test);
+
 State copy_state(State st);
 DrumHit copy_drum_hits(DrumHit hit);
 Drum copy_drum(Drum drum);

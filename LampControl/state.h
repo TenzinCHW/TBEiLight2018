@@ -30,7 +30,8 @@ struct HitQueue {
   uint16_t head;
   uint16_t counter;
 
-  void pop_hit() {
+  DrumHit pop_hit() {
+    if (this->counter == 0) return;
     uint16_t ret = this->head;
     this->head = (ret + 1) % MAX_HITS;
     this->counter--;

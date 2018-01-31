@@ -16,7 +16,7 @@ void main_loop() {
         broadcast(1, req);
         long wait = millis();
         while (millis() - wait < 1000) read_and_handle();
-//        delay(10);  // TODO may have to adjust this...
+        //        delay(10);  // TODO may have to adjust this...
         num_try++;
       }
       if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
@@ -111,7 +111,7 @@ void indiv_setup() {
   Timer1.initialize(1000000);
   Timer1.attachInterrupt(remove_old_hits);
   state.indiv_var_set = true;
-  broadcast(1, make_ack(state.ID));
+  //  broadcast(1, make_ack(state.ID));
 }
 
 void global_setup() {
@@ -132,11 +132,10 @@ void global_setup() {
 }
 
 void add_drum_hit(HitQueue* queue, uint8_t drum_id, float intensity, uint16_t counter) {
-  // check if hit is already in buffer before pushing
   int j;
   for (int i = state.hits.head; i < state.hits.head + state.hits.counter; i++) {
     j = i % MAX_HITS;
-    if (state.hits.hits[j].counter == counter && state.hits.hits[j].drum_id == drum_id) {
+    if (state.hits.hits[j].counter == counter && state.hits.hits[j].drum_id == drum_id) {  // check if hit is already in buffer before pushing
       return;
     }
   }
@@ -144,13 +143,13 @@ void add_drum_hit(HitQueue* queue, uint8_t drum_id, float intensity, uint16_t co
   hit.drum_id = drum_id;
   hit.intensity = intensity;
   hit.incoming_time = millis();
-  hit.counter = get_hit_counter(counter);
+  hit.counter = counter;
   state.hits.push_hit(hit);
 }
 
 void remove_old_hits() {
   while (state.hits.counter > 0) {
     if (millis() - state.hits.hits[state.hits.head].incoming_time > state.expiry_time) state.hits.pop_hit();
-    else break;
+    else return;
   }
 }
