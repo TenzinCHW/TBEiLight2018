@@ -7,17 +7,16 @@
 
 void setup() {
   Serial.begin(115200);
-  init_ID();
+//  delay(1000);  // For stability
 
+  // SETUP ID, COMMS AND LEDS //
+  init_ID();
+  startup_nRF();
+  setup_lights();
+  
   // TESTS //
   all_tests();
   // END TESTS //
-  byte meow[32];
-  for (int i = 0; i < 32; i++) {
-    meow[i] = i;
-  }
-  broadcast(1, meow);
-  Serial.println("Done");
 
   delay(1000);  // For stability
 }
