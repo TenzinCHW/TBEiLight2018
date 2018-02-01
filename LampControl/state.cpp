@@ -16,7 +16,6 @@ void main_loop() {
         broadcast(1, req);
         long wait = millis();
         while (millis() - wait < 1000) read_and_handle();
-        //        delay(10);  // TODO may have to adjust this...
         num_try++;
       }
       if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
@@ -55,7 +54,6 @@ void reset_vars() { // resets all variables that need to be reset
   while (state.hits.counter > 0) state.hits.pop_hit();
   Timer1.detachInterrupt();
   // Do not reset ID and do not stop listening on radio
-  // TODO reset other variables
 }
 
 void power_down() { // powers down for a few seconds
@@ -111,7 +109,7 @@ void indiv_setup() {
   Timer1.initialize(1000000);
   Timer1.attachInterrupt(remove_old_hits);
   state.indiv_var_set = true;
-  //  broadcast(1, make_ack(state.ID));
+  broadcast(1, make_ack(state.ID));
 }
 
 void global_setup() {

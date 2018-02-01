@@ -5,7 +5,7 @@ extern State state;
 
 void all_tests() {
   Serial.println(F("Begin tests"));
-  assert_true(test_indiv_setup());  // shutdown comms
+  assert_true(test_indiv_setup());
   assert_true(test_global_setup());
   assert_true(test_add_rm_old_drum_hits());
 }
@@ -144,7 +144,6 @@ bool test_add_rm_old_drum_hits() {
     Serial.println(F("Not removing old hits"));
     return false;
   }
-
   return true;
 }
 
@@ -171,7 +170,7 @@ State copy_state(State st) {
   t.hits = copy_hit_queue(st.hits);
   t.wavelength = st.wavelength;
   t.period = st.period;
-  for (int i = 0; i < NUM_LED; i++) t.lights[i] = st.lights[i];
+//  for (int i = 0; i < NUM_LED; i++) t.lights[i] = st.lights[i];
   t.ID = st.ID;
   for (int i = 0; i < PACKET_SZ; i++) t.msg_buf[i] = st.msg_buf[i];
   return t;
@@ -221,17 +220,17 @@ bool compare_states(State orig_state, State test_state) {
   bool hits = compare_hit_queues(orig_state.hits, test_state.hits);
   bool wavelength = orig_state.wavelength == test_state.wavelength;
   bool period = orig_state.period == test_state.period;
-  bool lights = true;
-  for (int i = 0; i < NUM_LED; i++) {
-    if (orig_state.lights[i] != test_state.lights[i]) {
-      lights = false;
-      break;
-    }
-  }
+  bool lighted = true;
+//  for (int i = 0; i < NUM_LED; i++) {
+//    if (orig_state.lights[i] != test_state.lights[i]) {
+//      lighted = false;
+//      break;
+//    }
+//  }
   bool ID = orig_state.ID == test_state.ID;
   bool msg_buf = orig_state.msg_buf == test_state.msg_buf;
   return indiv_var_set && globals_set && is_relay && last_hello && last_hello && expiry_time && time_since_last_glob_req && x && y && drums && hits && wavelength
-         && period && lights && ID && msg_buf;
+         && period && lighted && ID && msg_buf;
 }
 
 bool compare_drum_hits(DrumHit orig_hit, DrumHit test_hit) {

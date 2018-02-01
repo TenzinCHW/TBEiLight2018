@@ -1,3 +1,6 @@
+#ifndef STATE
+#define STATE 1
+
 #include <Arduino.h>
 #include <TimerOne.h>
 #include <EEPROM.h>
@@ -60,18 +63,19 @@ struct State {
   HitQueue hits;
   float wavelength;
   uint16_t period;
-  CRGB lights[NUM_LED];
   uint16_t ID;
   byte msg_buf[PACKET_SZ];
 };
 
 void init_ID();
-void main_loop();
-void reset_vars();
-void power_down();
-void read_and_handle();
-void read_drum_hit();
-void forward(uint8_t msg_type);
+void main_loop(); // TODO test
+void reset_vars();  // TODO test
+void power_down();  // TODO test
+void read_and_handle(); // TODO test
+void read_drum_hit(); // TODO test
+void forward(uint8_t msg_type); // TODO test
 void indiv_setup();
 void global_setup();
 void add_drum_hit(HitQueue* queue, uint8_t drum_id, float intensity, uint16_t counter);
+
+#endif

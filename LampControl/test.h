@@ -1,4 +1,10 @@
+//#ifndef STATE
+//#define STATE 1
 #include "state.h"
+//#endif
+
+#ifndef TEST
+#define TEST 1
 
 void all_tests();
 bool test_indiv_setup();
@@ -14,3 +20,5 @@ bool compare_states(State orig_state, State test_state);
 bool compare_hit_queues(HitQueue orig_hits, HitQueue test_hits);
 bool compare_drums(Drum orig_drum, Drum test_drum);
 bool compare_drum_hits(DrumHit orig_hit, DrumHit test_hit);
+
+#endif
