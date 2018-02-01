@@ -5,14 +5,9 @@
 
 #define PLOAD_WIDTH 32
 
-int address = 0x28; // 28 is the address
 byte byte1, byte2, byte3, byte4;
 
 RF24 radio (9, 10);
-
-struct dataStruct {
-  byte stuff[PLOAD_WIDTH];
-} transmitter1_data;
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
@@ -30,28 +25,19 @@ void setup() {
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
-  //  radio.setAutoAck(false);  //  turn off acknowledgements
   radio.setAutoAck(true);
   radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 5);
   radio.setChannel(50);
   radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
-  //  radio.openWritingPipe(ADDRESS1);
   radio.openReadingPipe(1, ADDRESS1);
   radio.stopListening();
   radio.printDetails();
   Serial.println("Transmitter");
 
   for (int i = 0; i < PLOAD_WIDTH - 1; i++) {
-    transmitter1_data.stuff[i] = i;
     tx_buf[i] = i;
   }
-
-  //    for (int i = 0; i < 1000; i++) {
-  //      tx_buf[PLOAD_WIDTH-1] = i;
-  //      broadcast(tx_buf, ADDRESS1);
-  //      delay(5);
-  //    }
 
   wait_for_reply();
 }
@@ -63,7 +49,9 @@ void loop() {
 void broadcast(uint8_t* buf, unsigned char* address) {
   radio.stopListening();
   radio.openWritingPipe(address); // No need to close, just change the address. Only 1 address can be written to at the same time.
-  radio.write(buf, PLOAD_WIDTH);
+  radio.startWrite(buf, PLOAD_WIDTH, true);
+//  Serial.println(F("Wrote liao"));
+  radio.txStandBy();
   radio.startListening();
 }
 
