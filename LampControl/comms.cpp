@@ -28,7 +28,7 @@ bool read_if_avail(uint8_t* buf) {
       return false;
     }
     read_and_flush(buf);
-    //    print_buffer(buf, PACKET_SZ);
+    print_buffer(buf, PACKET_SZ);
     return true;
   }
 }
@@ -45,7 +45,8 @@ void broadcast(uint8_t addr, byte* msg) {
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.write(&msg, sizeof(msg)); // TODO need to use writeFast because it blocks
+  radio.startWrite(&msg, sizeof(msg), true);
+  radio.txStandBy();
   radio.startListening();
 }
 
