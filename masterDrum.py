@@ -3,7 +3,7 @@ from time import sleep, time, gmtime
 import config
 import serial
 
-ser = serial.Serial('/dev/cu.usbmodem1411', 115200, timeout=None)
+ser = serial.Serial('/dev/cu.usbmodem1421', 115200, timeout=None)
 
 # get data from files 
 drum_loc = config.drum_loc
@@ -64,7 +64,7 @@ def send_global_si(last_global):
         return last_global
 
 def send_si(lamp_id):
-    # message = lamp_id $ lamp_loc \n
+    # message = g $ SI $ lamp_id $ lamp_loc \n
     if lamp_id not in lamp_acks:
         message = 'g$SI$' + lamp_id + '$' + str(lamps[lamp_id]['loc'][0]) + ',' + str(lamps[lamp_id]['loc'][0]) + '\n' 
         send_msg(message)
@@ -78,16 +78,6 @@ def register_ack(lamp_id):
 def all_acked(): 
     return len(lamp_acks) == len(lamps)
 
-# listen for drum hits 
-# def listening():
-#     # message = DrumHit $ drum_id $ intensity $ counter
-#     # msg = get_msg
-#     read = 'DH$3$20.3$2!'
-#     messages = read.strip('!')
-#     messages = messages.split('$') 
-#     # check if msg type is DH 
-#     if messages[0][0] == 'DH':
-#         drum_id = messages[0][1]
 
 def send_msg(msg):
     out = bytearray(msg, 'utf8')
