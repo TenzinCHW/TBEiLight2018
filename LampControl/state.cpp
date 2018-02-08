@@ -106,7 +106,7 @@ void indiv_setup() {
   state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
   state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
   state.is_relay = to_set_as_relay(state.msg_buf);
-  Timer1.initialize(1000000);
+  Timer1.initialize(state.expiry_time*1000);
   Timer1.attachInterrupt(remove_old_hits);
   state.indiv_var_set = true;
   broadcast(1, make_ack(state.ID));
