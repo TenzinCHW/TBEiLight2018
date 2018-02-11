@@ -1,9 +1,6 @@
-
-
-String inputString, header, binary, msg, empty = "";
+String inputString, header, binary= "";
 boolean stringComplete = false;
 int no_of_drums = 4;
-int bit_size = 128;
 char buf[5];
 long lamp_id;
 
@@ -17,7 +14,9 @@ void loop() {
       header = inputString.substring(0,7);
       // parse the request from bytes 
       // and redirect to either other lamps or to mDrum
-      if (header == "00000100") { // if input is binary - from lamp arduinos
+
+      // if input is binary - from lamp arduinos
+      if (header == "00000100") {
           // global SR 
           send_rpi("G$SR");
       }
@@ -34,36 +33,66 @@ void loop() {
           send_rpi(strcat("g$SA$", buf));
       }
 
-      else { // read from rpi
-//          int len;
-//          byte bit_msg[bit_size];
-//          msg = inputString;
-//          msg.trim();
-//          msg.replace(String::String('$'), empty);
-//          msg.replace(String::String(':'), empty);
-//          msg.replace(String::String(','), empty);
-//          msg.getBytes(bit_msg, bit_size);
-//          Serial.write(bit_msg, bit_size);
-
-            byte bit_msg[bit_size];
-            char *elements[20]; 
-            char *ptr = NULL;
-            byte index = 0;
-            char input[30];
-            inputString.toCharArray(input, 30);
+      // else if string is from rpi in string format
+      else { 
+          char *elements[20]; 
+          char *ptr = NULL;
+          byte index, bit_index = 0;
+          char input[50];
+          inputString.toCharArray(input, 50);
+          
+          /* get the first token */
+          ptr = strtok(input, "$:,");
+          while(ptr != NULL) {
+            elements[index] = ptr;
+            index++;
+            ptr = strtok(NULL, "$:,"); 
+          }
+          Serial.write("received: ");
+          Serial.write(elements[0]);
+          Serial.write(elements[1]);
+          
+          index = 2;
+          if ((elements[0] == "G") && (elements[1] == "SI")) {
+            Serial.write("global SI received: ");
+            byte bit_msg[32]; 
+            bit_msg[0] = byte(9); //set header byte to 00000101
+            bit_index = 1;
             
-            /* get the first token */
-            ptr = strtok(input, "$:,");
-            while(ptr != NULL) {
-              elements[index] = ptr;
-              index++;
-              ptr = strtok(NULL, "$:,"); 
+            boolean doneLoc, doneRgb = false;
+            while ((!doneLoc) | (!doneRgb)) {
+              for (int i=0; i<no_of_drums; i++) {
+                while (!doneLoc) {
+                  if (i == 3) { doneLoc = true; } 
+                  write_loc(elements, bit_msg, index, bit_index);
+                }
+                while (!doneRgb) {
+                  if (i == 3) { doneRgb = true; }
+                  write_rgb(elements, bit_msg, index, bit_index);
+                }
+              }
             }
-            for (int i=0; i<sizeof(elements); i++) {
-              bit_msg[i] = byte(elements[i]);
-              Serial.write(bit_msg[i]);
+            // write last two elements (period & wavelength) to output
+            for (int i=0; i<2; i++) { 
+              bit_msg[bit_index] = elements[30+i]; 
             }
-            Serial.write(byte('\n'));
+            send_lamp(bit_msg);
+          }
+          
+
+          else if ((elements[0] == "g") && (elements[1] == "SI")) {
+            Serial.write("non-global SI received: ");
+            byte bit_msg[4]; 
+            bit_msg[0] = byte(1); //set header byte to 00000001
+            bit_index = 1;
+            int lamp_id = atoi(elements[index]);
+            // lamp_id to take 3 bytes 
+            for (int i=0; i<3; i++) {
+              bit_msg[bit_index + i] = (byte) lamp_id >> (i*8);
+            }
+            send_lamp(bit_msg);
+          }
+
       };
     }
 //     mock sending msgs to mDrum
@@ -75,31 +104,40 @@ void loop() {
     int msg_count = 3;
     for(int i=0; i<msg_count; i++) {
         Serial.println(msgs[i]);
-        delay(5000);  
+        delay(1000);  
     }  
 
 }
 
-/*
-The following function convert any int from 0-255 to binary.
-You need to pass the int as agrument.
-You also need to pass the 8bit array of boolean
-*/
-void convertDecToBin(int Dec, boolean Bin[]) {
-  for(int i = 7 ; i >= 0 ; i--) {
-    if(pow(2, i)<=Dec) {
-      Dec = Dec - pow(2, i);
-      Bin[8-(i+1)] = 1;
-    } else {
-    }
+void write_loc(char *elements[], byte buf[], int index, int bit_index) {
+  for (int a=0; a<2; a++) {
+      int loc = atoi(elements[index]);
+      buf[bit_index] = (byte) loc;
+      buf[bit_index + 1] = (byte) loc >> 8;
+      index, bit_index++;
   }
 }
-void send_lamp(byte msg) {
 
+void write_rgb(char *elements[], byte buf[], int index, int bit_index) {
+    for (int a=0; a<3; a++) {
+      int loc = atoi(elements[index]);
+      buf[bit_index] = (byte) loc;
+      index, bit_index++;
+  }
 }
+
+
+void send_lamp(byte bit_msg[]) {
+  for (int i=0; i<sizeof(bit_msg); i++) {
+    Serial.write(bit_msg[i]);
+  }
+  Serial.write(byte('\n'));
+}
+
 void send_rpi(String msg) {
   Serial.println(msg);
 }
+
 /*
   SerialEvent occurs asynchronously whenever a new data comes in the
  hardware serial RX.  This routine is run between each

@@ -28,29 +28,35 @@ def setup_network():
         # block while listening for msg
         msg = ser.readline()
         if msg: 
-            parsed = msg.decode('utf-8').strip('\r\n')
-            messages = parsed.split('$')
-    
-            # if message is global SR
-            if messages[0] == 'G' and messages[1] == 'SR':
-                last_global = send_global_si(last_global)
-            # if message is non-global SR
-            elif messages[0] == 'g' and messages[1] == 'SR':
-                lamp_id = messages[2]
-                send_si(lamp_id)
-            # if message is non-global SA 
-            elif messages[0] == 'g' and messages[1] == 'SA':
-                lamp_id = messages[2]
-                register_ack(lamp_id)
+            try: 
+                parsed = msg.decode('utf-8').strip('\r\n')
+                messages = parsed.split('$')
+        
+                # if message is global SR
+                if messages[0] == 'G' and messages[1] == 'SR':
+                    last_global = send_global_si(last_global)
+                # if message is non-global SR
+                elif messages[0] == 'g' and messages[1] == 'SR':
+                    lamp_id = messages[2]
+                    send_si(lamp_id)
+                # if message is non-global SA 
+                elif messages[0] == 'g' and messages[1] == 'SA':
+                    lamp_id = messages[2]
+                    register_ack(lamp_id)
+                else: 
+                    print(msg)
 
-            ser.flush()
+                ser.flush()
+            except: 
+                string = msg.decode('latin-1')
+                print("serial msg: ", string)
     return True
 
 def send_global_si(last_global):
     # message = G $ SI $ dloc1:dloc2:dloc3 $ drgb1:drgb2:drgb3 $ wavelength $ period $ expiry \n
     if time() - last_global > 10:
         last_global = time()
-        message = 'G$SI'
+        message = 'G$SI$'
         for loc in drum_loc: 
             message += str(loc[0]) + ',' + str(loc[1]) + ':'
         message += '$'
@@ -88,8 +94,6 @@ if __name__ == '__main__':
     while (time() - start_time) < 20: 
         setup_network()
 
-    # while True:
-    #     listening() 
 
 
 
