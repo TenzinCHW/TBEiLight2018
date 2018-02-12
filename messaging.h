@@ -48,7 +48,7 @@ void set_setup(char* msg, uint8_t msg_type);
 
 void set_global(char* msg);
 void set_set_as_relay(char* msg);
-void set_individual_setup(char* msg, uint16_t X, uint16_t Y);
+void set_individual_setup(char* msg, uint16_t id, uint16_t X, uint16_t Y);
 void set_drum_loc(char* msg, uint8_t drum_index, uint16_t X, uint16_t Y);
 void set_drum_colour(char* msg, uint8_t drum_index, uint8_t R, uint8_t G, uint16_t B);
 void set_wavelength(char* msg, uint8_t wavelength);

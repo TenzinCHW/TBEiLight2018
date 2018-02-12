@@ -1,5 +1,14 @@
 #include "messaging.h"
 
+/*
+ * The char* msg input into each function is the pointer to the 32-bit transmission buffer.
+ * To use, call set_setup with SETUP_MSG as msg_type, then if it's global, call set_global and 
+ * the other global setup functions.
+ * If it is individual, call set_individual_setup with the lamp id and x and y-coords.
+ * Once global or individual setup message prep is complete, send the msg and finally call
+ * clear_header to remove header info from msg to get ready for next transmission.
+ */
+
 // BIT PACKING FUNCTIONS //
 void clear_header(char* msg) {
     msg[0] = 0;
@@ -17,7 +26,8 @@ void set_set_as_relay(char* msg) {
     msg |= 1 << SET_AS_RELAY;
 }
 
-void set_individual_setup(char* msg, uint16_t X, uint16_t Y) {
+void set_individual_setup(char* msg, uint16_t id, uint16_t X, uint16_t Y) {
+    set_address(msg, id);
     msg[LAMP_X1] = X >> 8;
     msg[LAMP_X1 + 1] = X;
     msg[LAMP_Y1] = Y >> 8;
