@@ -61,6 +61,8 @@ float get_wavelength(byte* msg);
 uint16_t get_period(byte* msg);
 uint16_t get_expiry(byte* msg);
 bool addressed_to_id(byte* msg, uint16_t id); // TODO test
+float get_lamp_x(char* msg);
+float get_lamp_y(char* msg);
 uint8_t get_drum_id(byte* msg);
 float get_hit_intensity(byte* msg);
 uint16_t get_hit_counter(byte* msg);

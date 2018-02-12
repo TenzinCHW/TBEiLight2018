@@ -103,8 +103,10 @@ void forward(uint8_t msg_type) {
 }
 
 void indiv_setup() {
-  state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
-  state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
+  state.x = get_lamp_x(state.msg_buf);
+  state.y = get_lamp_y(state.msg_buf);
+//  state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
+//  state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
   state.is_relay = to_set_as_relay(state.msg_buf);
   Timer1.initialize(state.expiry_time*1000);
   Timer1.attachInterrupt(remove_old_hits);

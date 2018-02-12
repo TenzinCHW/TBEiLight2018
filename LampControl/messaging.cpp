@@ -16,7 +16,7 @@ void set_relay_bit(byte* msg) {
  */
 byte* make_ack(uint16_t id) {
   byte ack[3];
-  ack[0] = 0b10;
+  ack[0] = SETUP_ACK;
   ack[1] = id >> 8;
   ack[2] = id;  // id fills in from the back of 2 bits
   return ack;
@@ -139,6 +139,22 @@ uint16_t get_expiry(byte* msg) {
  */
 bool addressed_to_id(byte* msg, uint16_t id) {
   return ((msg[LAMP_ID] << 8) | msg[LAMP_ID+1]) == id;
+}
+
+/*
+ * input msg: pointer to state message buffer
+ * return: x-coordinate of lamp in metres
+ */
+float get_lamp_x(char* msg) {
+    return (msg[LAMP_X1] << 8 | msg[LAMP_X1+1]) / 10.0;
+}
+
+/*
+ * input msg: pointer to state message buffer
+ * return: y-coordinate of lamp in metres
+ */
+float get_lamp_y(char* msg) {
+    return (msg[LAMP_Y1] << 8 | msg[LAMP_Y1+1]) / 10.0;
 }
 
 // For drum hits //
