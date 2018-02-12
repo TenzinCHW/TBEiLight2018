@@ -24,8 +24,9 @@
 #define RELAY_BIT 7
 
 // INDIV SETUP //
-#define LAMP_X1 1
-#define LAMP_Y1 3
+#define LAMP_ID 1
+#define LAMP_X1 3
+#define LAMP_Y1 5
 
 // GLOBAL SETUP //
 #define DRUM_X1_START 1

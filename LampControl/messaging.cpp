@@ -28,7 +28,7 @@ byte* make_ack(uint16_t id) {
  */
 byte* make_indiv_req(uint16_t id) {
   byte req[3];
-  req[0] = 1;
+  req[0] = SETUP_REQ_MSG;
   req[1] = id >> 8;
   req[2] = id;
   return req;
@@ -138,7 +138,7 @@ uint16_t get_expiry(byte* msg) {
  * return: true if the message is addressing the ID
  */
 bool addressed_to_id(byte* msg, uint16_t id) {
-  return ((msg[1] << 8) | msg[2]) == id;
+  return ((msg[LAMP_ID] << 8) | msg[LAMP_ID+1]) == id;
 }
 
 // For drum hits //
