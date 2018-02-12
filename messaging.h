@@ -54,6 +54,7 @@ void set_drum_colour(char* msg, uint8_t drum_index, uint8_t R, uint8_t G, uint16
 void set_wavelength(char* msg, uint8_t wavelength);
 void set_period(char* msg, uint8_t period);
 void set_expiry(char* msg, uint8_t expiry);
+void set_address(char* msg, uint16_t id);
 
 void set_drum_id(char* msg, uint8_t id);
 void set_drum_hit_intensity(char* msg, uint16_t intensity);
