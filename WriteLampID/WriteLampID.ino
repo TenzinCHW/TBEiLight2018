@@ -2,7 +2,7 @@
 
 void setup() {
   // Use this to write the IDs to EEPROM
-  uint16_t ID = 0;
+  uint16_t ID = 1;
   EEPROM.write(0, ID >> 8);
   EEPROM.write(1, ID);
   
