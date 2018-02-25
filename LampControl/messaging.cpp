@@ -7,38 +7,37 @@
  * sets the relay bit of message in state message buffer
  */
 void set_relay_bit(byte* msg) {
-  msg[0] |= (1 << 7);
-}
-
-/*
- * input: lamp ID from state
- * return: bytearray representing message to acknowledge that this lamp has set up local configuration
- */
-byte* make_ack(uint16_t id) {
-  byte ack[3];
-  ack[0] = SETUP_ACK;
-  ack[1] = id >> 8;
-  ack[2] = id;  // id fills in from the back of 2 bits
-  return ack;
+  msg[0] |= (1 << RELAY_BIT);
 }
 
 /*
  * input id: lamp ID from state
- * return: bytearray representing a message for the request for this specific lamp's settings
+ * input msg: pointer to state message buffer
+ * sets message content to acknowledge that this lamp has set up local configuration
  */
-byte* make_indiv_req(uint16_t id) {
-  byte req[3];
-  req[0] = SETUP_REQ_MSG;
-  req[1] = id >> 8;
-  req[2] = id;
-  return req;
+void make_ack(byte* msg, uint16_t id) {
+  msg[0] = SETUP_ACK;
+  msg[1] = id >> 8;
+  msg[2] = id;  // id fills in from the back of 2 bits
 }
 
 /*
- * return: byte with global bit set, which is the message for a global configuration request
+ * input id: lamp ID from state
+ * input msg: pointer to state message buffer
+ * sets message content to request for this specific lamp's settings
  */
-byte make_glob_req() {
-  return 1 << GLOBAL_BIT;
+void make_indiv_req(byte* msg, uint16_t id) {
+  msg[0] = SETUP_REQ_MSG;
+  msg[1] = id >> 8;
+  msg[2] = id;
+}
+
+/*
+ * input msg: pointer to state message buffer
+ * sets global bit of first byte of msg, which is the message for a global configuration request
+ */
+void make_glob_req(byte* msg) {
+  msg[0] |= (1 << GLOBAL_BIT);
 }
 
 // ==== PARSING MSG ==== //

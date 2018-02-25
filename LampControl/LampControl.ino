@@ -1,4 +1,4 @@
-#define TESTING 1
+//#define TESTING
 #ifdef TESTING
   #include "test.h"
 #else
@@ -15,7 +15,7 @@ void setup() {
   setup_lights();
   
   // TESTS //
-  all_tests();
+//  all_tests();
   // END TESTS //
 
   delay(1000);  // For stability

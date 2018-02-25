@@ -45,9 +45,9 @@
 
 // ==== PACKING MSG ==== //
 void set_relay_bit(byte* msg);
-byte* make_ack(uint16_t id);
-byte* make_indiv_req(uint16_t id);
-byte make_glob_req();
+void make_ack(byte* msg, uint16_t id);
+void make_indiv_req(byte* msg, uint16_t id);
+void make_glob_req(byte* msg);
 
 // ==== PARSING MSG ==== //
 uint8_t get_msg_type(byte* msg);

@@ -11,16 +11,18 @@ void main_loop() {
   if (!(state.indiv_var_set && state.globals_set)) {
     if (!state.indiv_var_set) {
       uint8_t num_try = 0;
-      byte* req = make_indiv_req(state.ID);
+      make_indiv_req(state.msg_buf, state.ID);
+      for (int i = 0; i<3; i++) Serial.println(state.msg_buf[i]);
       while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
-        broadcast(1, req);
+        broadcast(1, state.msg_buf);
         long wait = millis();
         while (millis() - wait < 1000) read_and_handle();
         num_try++;
       }
       if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
     } else if (!state.globals_set && millis() - state.time_since_last_glob_req > 2000) {
-      broadcast(1, make_glob_req());
+      make_glob_req(state.msg_buf);
+      broadcast(1, state.msg_buf);
       read_and_handle();
       state.time_since_last_glob_req = millis();
     }
@@ -111,7 +113,13 @@ void indiv_setup() {
   Timer1.initialize(state.expiry_time*1000);
   Timer1.attachInterrupt(remove_old_hits);
   state.indiv_var_set = true;
-  broadcast(1, make_ack(state.ID));
+  make_ack(state.msg_buf, state.ID),
+  broadcast(1, state.msg_buf);
+
+  Serial.println(F("Setting up indiv"));
+  Serial.print(F("X: ")); Serial.println(state.x);
+  Serial.print(F("Y: ")); Serial.println(state.y);
+  Serial.print(F("Is relay: ")); Serial.println(state.is_relay);
 }
 
 void global_setup() {
@@ -129,6 +137,17 @@ void global_setup() {
   state.period = get_period(state.msg_buf);
   state.expiry_time = get_expiry(state.msg_buf);
   state.globals_set = true;
+
+  Serial.println(F("Setting up global"));
+  for (uint8_t i = 0; i < NUM_OF_DRUMS; i++) {
+    Serial.print(F("Drum ")); Serial.print(i); Serial.print(F(" X :")); Serial.print(state.drums[i].x); Serial.print(F(" Y :")); Serial.println(state.drums[i].y);
+    for (uint8_t j = 0; j < 3; j++) {
+      Serial.println(state.drums[i].colour[j]);
+    }
+  }
+  Serial.print(F("Wavelength: ")); Serial.println(state.wavelength);
+  Serial.print(F("Period: ")); Serial.println(state.period);
+  Serial.print(F("Expiry: ")); Serial.println(state.expiry_time);
 }
 
 void add_drum_hit(HitQueue* queue, uint8_t drum_id, float intensity, uint16_t counter) {
