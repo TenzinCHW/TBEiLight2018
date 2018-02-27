@@ -43,21 +43,21 @@
 #define DRUM_COUNTER_BYTE 4
 
 // BIT PACKING FUNCTIONS //
-void clear_header(char* msg);
-void set_setup(char* msg, uint8_t msg_type);
+void clear_header(byte* msg);
+void set_setup(byte* msg, uint8_t msg_type);
 
-void set_global(char* msg);
-void set_set_as_relay(char* msg);
-void set_individual_setup(char* msg, uint16_t id, uint16_t X, uint16_t Y);
-void set_drum_loc(char* msg, uint8_t drum_index, uint16_t X, uint16_t Y);
-void set_drum_colour(char* msg, uint8_t drum_index, uint8_t R, uint8_t G, uint16_t B);
-void set_wavelength(char* msg, uint8_t wavelength);
-void set_period(char* msg, uint8_t period);
-void set_expiry(char* msg, uint8_t expiry);
-void set_address(char* msg, uint16_t id);
+void set_global(byte* msg);
+void set_set_as_relay(byte* msg);
+void set_individual_setup(byte* msg, uint16_t id, uint16_t X, uint16_t Y);
+void set_drum_loc(byte* msg, uint8_t drum_index, uint16_t X, uint16_t Y);
+void set_drum_colour(byte* msg, uint8_t drum_index, uint8_t R, uint8_t G, uint16_t B);
+void set_wavelength(byte* msg, uint8_t wavelength);
+void set_period(byte* msg, uint8_t period);
+void set_expiry(byte* msg, uint8_t expiry);
+void set_address(byte* msg, uint16_t id);
 
-void set_drum_id(char* msg, uint8_t id);
-void set_drum_hit_intensity(char* msg, uint16_t intensity);
-void set_drum_hit_counter(char* msg, uint16_t count);
+void set_drum_id(byte* msg, uint8_t id);
+void set_drum_hit_intensity(byte* msg, uint16_t intensity);
+void set_drum_hit_counter(byte* msg, uint16_t count);
 
 #endif
