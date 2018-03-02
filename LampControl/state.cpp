@@ -14,7 +14,9 @@ void main_loop() {
       make_indiv_req(state.msg_buf, state.ID);
       for (int i = 0; i<3; i++) Serial.println(state.msg_buf[i]);
       while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
+        Serial.println(F("Requesting indiv"));
         broadcast(1, state.msg_buf);
+        print_buffer(state.msg_buf, PACKET_SZ);
         long wait = millis();
         while (millis() - wait < 1000) read_and_handle();
         num_try++;

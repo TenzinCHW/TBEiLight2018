@@ -30,6 +30,8 @@ bool read_if_avail(uint8_t* buf) {
     read_and_flush(buf);
     print_buffer(buf, PACKET_SZ);
     return true;
+  } else {
+    return false;
   }
 }
 
@@ -45,7 +47,7 @@ void broadcast(uint8_t addr, byte* msg) {
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.startWrite(&msg, sizeof(msg), true);
+  radio.startWrite(msg, PACKET_SZ, true);
   radio.txStandBy();
   radio.startListening();
 }
