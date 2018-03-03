@@ -8,7 +8,8 @@ const int NO_OF_RGB = 3;
 uint8_t radioInput[32];
 char serialInput[100];
 byte msg[32];
-boolean serialIn, radioIn = false;
+bool serialIn = false;
+bool radioIn = false;
 // global SI: "I$256,257:258,259:260,261:262,263$100,200,100:20,20,20:30,30,30:0,0,255$90$90$255"
 // non-global SI: "i$20$256,257"
 
@@ -22,16 +23,15 @@ void setup() {
   //  }
   //  serialIn = true;
   // ====== end test ======
-
 }
 
 void loop() {
-  clear_header(msg);
+  clear_header(radioInput);
   parse_input();
 }
 
 void parse_input() {
-  // handle input from radio 
+  // handle input from radio
   radioIn = read_if_avail(radioInput);
   
   // handle input from drum rpi via Serial
@@ -136,20 +136,22 @@ void handle_lamp_in() {
   }
   else if (radioInput[0] << 5 == 0) {
     //handle non-global SR
-    char* lamp_id;
+//    char* lamp_id;
     Serial.write(byte(radioInput));
     Serial.write('\n');
-    itoa(radioInput[1] << 8 | radioInput[2], lamp_id, 10);
+    uint16_t id = radioInput[1] << 8 | radioInput[2];
+//    itoa(id, lamp_id, 10);
+//    itoa(radioInput[1] << 8 | radioInput[2], lamp_id, 10);
     Serial.print("r$");
-    Serial.println(lamp_id);
+    Serial.println(id);
   }
   else if (radioInput[0] << 5 == 0b01000000) {
     //handle SA
-    char* lamp_id;
-    Serial.println(radioInput[1] << 8 | radioInput[2]);
-    itoa(radioInput[1] << 8 | radioInput[2], lamp_id, 10);
+//    char* lamp_id;
+    uint16_t id = radioInput[1] << 8 | radioInput[2];
+//    itoa(radioInput[1] << 8 | radioInput[2], lamp_id, 10);
     Serial.print("a$");
-    Serial.println(lamp_id);
+    Serial.println(id);
   }
 }
 

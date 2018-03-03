@@ -12,7 +12,6 @@ void startup_nRF() {
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
   radio.setAutoAck(false);  //  turn off acknowledgements
-  //  radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 15);
   radio.setChannel(50);
   radio.setPALevel(RF24_PA_MAX);
@@ -30,6 +29,8 @@ bool read_if_avail(uint8_t* buf) {
     read_and_flush(buf);
     print_buffer(buf, PACKET_SZ);
     return true;
+  } else {
+    return false;
   }
 }
 
@@ -45,7 +46,7 @@ void broadcast(uint8_t addr, byte* msg) {
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.startWrite(&msg, sizeof(msg), true);
+  radio.startWrite(msg, PACKET_SZ, true);
   radio.txStandBy();
   radio.startListening();
 }
