@@ -1,5 +1,5 @@
 #ifndef MESSAGING
-#define MESSAGING 1
+#define MESSAGING
 
 #include <Arduino.h>
 

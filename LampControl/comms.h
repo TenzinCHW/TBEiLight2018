@@ -1,5 +1,5 @@
 #ifndef COMMS
-#define COMMS 1
+#define COMMS
 
 #include <SPI.h>
 #include <nRF24L01.h>

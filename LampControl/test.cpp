@@ -61,7 +61,7 @@ bool test_global_setup() {
     return false;
   }
 
-  passed = passed && (state.wavelength == wl / 10.0);
+  passed = passed && (get_wavelength(state.msg_buf) == wl);
   if (!passed) {
     Serial.println(F("wavelength not initialized properly"));
     return false;

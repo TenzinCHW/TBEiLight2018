@@ -12,7 +12,6 @@ void startup_nRF() {
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
   radio.setAutoAck(false);  //  turn off acknowledgements
-  //  radio.setAddressWidth(5); //  5 byte addresses
   radio.setRetries(1, 15);
   radio.setChannel(50);
   radio.setPALevel(RF24_PA_MAX);

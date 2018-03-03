@@ -8,8 +8,8 @@ RF24 radio (9, 10);
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 
 unsigned char rx_buf[PLOAD_WIDTH] = {0};
-unsigned char ADDRESS1[5]  = {0xb1, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
-unsigned char ADDRESS0[5]  = {0xb0, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
+const unsigned char ADDRESS1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
+const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 void setup() {
   Serial.begin(115200);
@@ -17,20 +17,11 @@ void setup() {
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
-  radio.setAutoAck(true);
-  radio.setAddressWidth(5); //  5 byte addresses
+  radio.setAutoAck(false);  //  turn off acknowledgements
   radio.setRetries(1, 15);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
-  //  void setRetries(uint8_t delay, uint8_t count);  // for TX code
-  //   * @param delay How long to wait between each retry, in multiples of 250us,
-  //   * max is 15.  0 means 250us, 15 means 4000us.
-  //   * @param count How many retries before giving up, max 15
-  //setChannel(uint8_t channel);  // can choose channel from 0-125
-  //    void setPALevel ( uint8_t level );  //   * RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX
-  //   * The power levels correspond to the following output levels respectively:
-  //   * NRF24L01: -18dBm, -12dBm,-6dBM, and 0dBm
-  //  radio.openReadingPipe(0, ADDRESS0); // set to same as transmitter unless using relay
+  radio.setPALevel(RF24_PA_MAX);
+  radio.openReadingPipe(0, ADDRESS0);
   radio.openReadingPipe(1, ADDRESS1);
   radio.startListening();
   radio.printDetails();
@@ -40,8 +31,8 @@ void setup() {
 
 void loop() {
   //  read_and_reply(0, rx_buf);
-  read_and_reply(1, rx_buf);
-  //  read_if_avail(rx_buf);
+//    read_and_reply(1, rx_buf);
+  read_if_avail(rx_buf);
 }
 
 void read_if_avail(uint8_t* buf) {
@@ -50,7 +41,7 @@ void read_if_avail(uint8_t* buf) {
       return;
     }
     read_and_flush(buf);
-    //        print_buffer(buf, PLOAD_WIDTH);
+    print_buffer(buf, 32);
   }
 }
 

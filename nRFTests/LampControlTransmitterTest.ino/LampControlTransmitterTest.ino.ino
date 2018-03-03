@@ -10,26 +10,24 @@ RF24 radio (9, 10);
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
 
-unsigned char ADDRESS1[5]  = {0xb1, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
-unsigned char ADDRESS0[5]  = {0xb0, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
-//just change b1 to b2 or b3 to send to other pip on reciever
+const unsigned char ADDRESS1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
+const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 long start; // For timing
 
 void setup() {
-  // Wire.begin();
   Serial.begin(115200);
   radio.begin();
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
-  radio.setAutoAck(true);
-  radio.setAddressWidth(5); //  5 byte addresses
-  radio.setRetries(1, 5);
+  radio.setAutoAck(false);  //  turn off acknowledgements
+  radio.setRetries(1, 15);
   radio.setChannel(50);
-  radio.setPALevel(RF24_PA_MIN);  // TODO change to RF24_PA_MAX for actual one
+  radio.setPALevel(RF24_PA_MAX);
+  radio.openReadingPipe(0, ADDRESS0);
   radio.openReadingPipe(1, ADDRESS1);
-  radio.stopListening();
+  radio.startListening();
   radio.printDetails();
   Serial.println("Transmitter");
 
@@ -48,7 +46,7 @@ void broadcast(uint8_t* buf, unsigned char* address) {
   radio.stopListening();
   radio.openWritingPipe(address); // No need to close, just change the address. Only 1 address can be written to at the same time.
   radio.startWrite(buf, PLOAD_WIDTH, true);
-//  Serial.println(F("Wrote liao"));
+  //  Serial.println(F("Wrote liao"));
   radio.txStandBy();
   radio.startListening();
 }
@@ -59,7 +57,7 @@ bool read_if_avail(uint8_t* buf) {
       return false;
     }
     read_and_flush(buf);
-//    print_buffer(buf, PLOAD_WIDTH);
+    //    print_buffer(buf, PLOAD_WIDTH);
     return true;
   } else {
     return false;

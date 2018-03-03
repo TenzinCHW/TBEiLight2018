@@ -1,5 +1,5 @@
 #ifndef LED
-#define LED 1
+#define LED
 
 #include <FastLED.h>
 #include "state.h"

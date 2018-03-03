@@ -1,5 +1,5 @@
 #ifndef STATE
-#define STATE 1
+#define STATE
 
 #include <Arduino.h>
 #include <TimerOne.h>
