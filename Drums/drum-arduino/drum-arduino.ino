@@ -140,8 +140,6 @@ void handle_lamp_in() {
     Serial.write(byte(radioInput));
     Serial.write('\n');
     uint16_t id = radioInput[1] << 8 | radioInput[2];
-//    itoa(id, lamp_id, 10);
-//    itoa(radioInput[1] << 8 | radioInput[2], lamp_id, 10);
     Serial.print("r$");
     Serial.println(id);
   }
@@ -172,7 +170,8 @@ void serialEvent() {
     // if the incoming character is a newline, set a flag
     // so the main loop can do something about it:
     if (inChar == "\n") {
-
+      for (int i = 0; i < 100; i++) Serial.print(serialInput[i]);
+      Serial.println();
       serialIn = true;
     }
   }

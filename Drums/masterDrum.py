@@ -3,7 +3,7 @@ from time import sleep, time, gmtime
 import config
 import serial
 
-ser = serial.Serial('/dev/cu.wchusbserial1420', 115200, timeout=None)
+ser = serial.Serial('/dev/cu.ttyUSB0', 115200, timeout=None)
 
 # get init master drum data 
 drum_loc = config.drum_loc
@@ -29,7 +29,8 @@ def setup_network():
         ser.flush()
         if msg:
             # try:
-                parsed = msg.decode('utf-8').strip('\r\n')
+                #parsed = msg.decode('utf-8').strip('\r\n')
+                parsed = msg.decode('latin-1').strip('\r\n')
                 messages = parsed.split('$')
                 # if message is global SR
                 if messages[0] == 'R':
