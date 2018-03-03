@@ -3,7 +3,7 @@ from time import sleep, time, gmtime
 import config
 import serial
 
-ser = serial.Serial('/dev/cu.ttyUSB0', 115200, timeout=None)
+ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=None)
 
 # get init master drum data 
 drum_loc = config.drum_loc
@@ -87,8 +87,9 @@ def all_acked():
 
 
 def send_msg(msg):
-    out = bytearray(msg, 'utf8')
-    ser.write(out)
+    #out = bytearray(msg, 'utf8')
+    #ser.write(out)
+    ser.write(msg.encode())
 
 
 if __name__ == '__main__':
