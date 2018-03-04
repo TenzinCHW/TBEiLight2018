@@ -40,7 +40,7 @@ void main_loop() {
   // TODO encrypted messages (low priority)
   Serial.println(F("Ok ready"));
   read_and_handle();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
-  // TODO update LEDs
+  set_rgb();
   if (millis() - state.last_hello > 10000) {
     reset_vars();
     power_down();

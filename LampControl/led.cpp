@@ -1,7 +1,7 @@
 #include "led.h"
 
-CRGB lights[NUM_LED];
 extern State state;
+CRGB lights[NUM_LED];
 
 /* temporary vars for use in set_total_intensity() */
 float total_intensity[3];
@@ -17,7 +17,7 @@ void setup_lights() {
   FastLED.addLeds<CHIPSET, LED_PIN>(lights, NUM_LED);
 }
 
-void set_rgb(CRGB* lights, State state) {
+void set_rgb() {
   // Wave equation goes here. Add up values for each drum.
   // use lights[i].setRGB(r_val, g_val, b_val);
   // where r_val, g_val and b_val are the values of red, green and blue respectively.
