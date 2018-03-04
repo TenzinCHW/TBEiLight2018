@@ -37,7 +37,7 @@ void make_indiv_req(byte* msg, uint16_t id) {
  * sets global bit of first byte of msg, which is the message for a global configuration request
  */
 void make_glob_req(byte* msg) {
-  msg[0] |= (1 << GLOBAL_BIT);
+  msg[0] = (1 << GLOBAL_BIT);
 }
 
 // ==== PARSING MSG ==== //

@@ -7,35 +7,44 @@ void init_ID() {
   Serial.print(F("ID: ")); Serial.println(state.ID, DEC);
 }
 
-void main_loop() {
-  if (!(state.indiv_var_set && state.globals_set)) {
-    if (!state.indiv_var_set) {
-      uint8_t num_try = 0;
-      for (int i = 0; i < 3; i++) Serial.println(state.msg_buf[i]);
-      while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
-        make_indiv_req(state.msg_buf, state.ID);
-        Serial.println(F("Requesting indiv"));
-        broadcast(1, state.msg_buf);
-        print_buffer(state.msg_buf, PACKET_SZ);
-        long wait = millis();
-        while (millis() - wait < 1000) read_and_handle();
-        num_try++;
-      }
-      if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
-    } else if (!state.globals_set && millis() - state.time_since_last_glob_req > 2000) {
-      make_glob_req(state.msg_buf);
+void req_indiv_setup() {
+  if (!state.indiv_var_set) {
+    uint8_t num_try = 0;
+    for (int i = 0; i < 3; i++) Serial.println(state.msg_buf[i]);
+    while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
+      make_indiv_req(state.msg_buf, state.ID);
+      Serial.println(F("Requesting indiv"));
       broadcast(1, state.msg_buf);
+      print_buffer(state.msg_buf, PACKET_SZ);
+      long wait = millis();
+      while (millis() - wait < 10) read_and_handle();
+      num_try++;
+    }
+    if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
+  }
+}
+
+void req_global_setup() {
+  if (!state.globals_set && millis() - state.time_since_last_glob_req > 2000) {
+    Serial.println(F("Requesting global"));
+    make_glob_req(state.msg_buf);
+    for (int i = 0; i < RETRY_TIMES; i++) {
+      broadcast(1, state.msg_buf);
+      delay(1);
       read_and_handle();
-      state.time_since_last_glob_req = millis();
     }
-  } else {
-    // TODO encrypted messages (low priority)
-    read_and_handle();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
-    // TODO update LEDs
-    if (millis() - state.last_hello > 10000) {
-      reset_vars();
-      power_down();
-    }
+    state.time_since_last_glob_req = millis();
+  }
+}
+
+void main_loop() {
+  // TODO encrypted messages (low priority)
+  Serial.println(F("Ok ready"));
+  read_and_handle();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
+  // TODO update LEDs
+  if (millis() - state.last_hello > 10000) {
+    reset_vars();
+    power_down();
   }
 }
 
@@ -73,6 +82,11 @@ void read_and_handle() {
     if (msg_type == SETUP_MSG) {
       if (is_global(state.msg_buf)) global_setup();
       else if (addressed_to_id(state.msg_buf, state.ID)) indiv_setup();
+    } else if (msg_type == DRUM_HIT_MSG) {
+      state.last_hello = millis();
+      add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
+    } else if (msg_type == HELLO_MSG) {
+      state.last_hello = millis();
     }
   }
 }
@@ -112,11 +126,11 @@ void indiv_setup() {
   //  state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
   //  state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
   state.is_relay = to_set_as_relay(state.msg_buf);
-  Timer1.initialize(state.expiry_time * 1000);
-  Timer1.attachInterrupt(remove_old_hits);
   state.indiv_var_set = true;
-  make_ack(state.msg_buf, state.ID),
-           broadcast(1, state.msg_buf);
+  make_ack(state.msg_buf, state.ID);
+  for (int i = 0; i < RETRY_TIMES; i++) {
+    broadcast(1, state.msg_buf);
+  }
 
   Serial.println(F("Setting up indiv"));
   Serial.print(F("X: ")); Serial.println(state.x);
@@ -139,6 +153,8 @@ void global_setup() {
   state.period = get_period(state.msg_buf);
   state.expiry_time = get_expiry(state.msg_buf);
   state.globals_set = true;
+  Timer1.initialize(state.expiry_time * 1000);
+  Timer1.attachInterrupt(remove_old_hits);
 
   Serial.println(F("Setting up global"));
   for (uint8_t i = 0; i < NUM_OF_DRUMS; i++) {

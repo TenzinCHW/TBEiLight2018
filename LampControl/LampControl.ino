@@ -5,6 +5,8 @@
 #include "state.h"
 #endif
 
+extern State state;
+
 void setup() {
   Serial.begin(115200);
   //  delay(1000);  // For stability
@@ -23,5 +25,8 @@ void setup() {
 
 
 void loop() {
-  main_loop();
+  if (!(state.globals_set && state.indiv_var_set)) {
+    req_indiv_setup();
+    req_global_setup();
+  } else main_loop();
 }

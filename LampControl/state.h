@@ -68,6 +68,8 @@ struct State {
 };
 
 void init_ID();
+void req_indiv_setup();
+void req_global_setup();
 void main_loop(); // TODO test
 void reset_vars();  // TODO test
 void power_down();  // TODO test
