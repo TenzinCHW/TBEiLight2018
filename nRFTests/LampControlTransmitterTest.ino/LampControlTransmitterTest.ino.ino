@@ -5,7 +5,7 @@
 
 #define PLOAD_WIDTH 32
 
-RF24 radio (9, 10);
+RF24 radio (10, 9);
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];

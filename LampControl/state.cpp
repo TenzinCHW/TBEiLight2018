@@ -4,16 +4,16 @@ State state;
 
 void init_ID() {
   state.ID = EEPROM.read(0) << 8 | EEPROM.read(1);
-  //  Serial.println(state.ID, DEC);
+  Serial.print(F("ID: ")); Serial.println(state.ID, DEC);
 }
 
 void main_loop() {
   if (!(state.indiv_var_set && state.globals_set)) {
     if (!state.indiv_var_set) {
       uint8_t num_try = 0;
-      make_indiv_req(state.msg_buf, state.ID);
-      for (int i = 0; i<3; i++) Serial.println(state.msg_buf[i]);
+      for (int i = 0; i < 3; i++) Serial.println(state.msg_buf[i]);
       while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
+        make_indiv_req(state.msg_buf, state.ID);
         Serial.println(F("Requesting indiv"));
         broadcast(1, state.msg_buf);
         print_buffer(state.msg_buf, PACKET_SZ);
@@ -109,14 +109,14 @@ void forward(uint8_t msg_type) {
 void indiv_setup() {
   state.x = get_lamp_x(state.msg_buf);
   state.y = get_lamp_y(state.msg_buf);
-//  state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
-//  state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
+  //  state.x = (state.msg_buf[LAMP_X1] << 8 | state.msg_buf[LAMP_X1 + 1]) / 10.0;
+  //  state.y = (state.msg_buf[LAMP_Y1] << 8 | state.msg_buf[LAMP_Y1 + 1]) / 10.0;
   state.is_relay = to_set_as_relay(state.msg_buf);
-  Timer1.initialize(state.expiry_time*1000);
+  Timer1.initialize(state.expiry_time * 1000);
   Timer1.attachInterrupt(remove_old_hits);
   state.indiv_var_set = true;
   make_ack(state.msg_buf, state.ID),
-  broadcast(1, state.msg_buf);
+           broadcast(1, state.msg_buf);
 
   Serial.println(F("Setting up indiv"));
   Serial.print(F("X: ")); Serial.println(state.x);

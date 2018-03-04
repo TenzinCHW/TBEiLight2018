@@ -37,7 +37,7 @@ uint16_t j;
 uint16_t cor_sum;
 
 void read_value() {
-  input.push(analogRead(A0));
+  input.push(analogRead(A5));
 }
 
 void setup() {
@@ -68,11 +68,11 @@ void loop() {
   //          keeplooking = false;
   //       }
 
-  if (cor_sum > THRESHOLD) {
-    Serial.println("yey");
-  }
+//  if (cor_sum > THRESHOLD) {
+//    Serial.println("yey");
+//  }
 //  Serial.println(input.get_val(FILTER_SIZE-1));
-  Serial.println(analogRead(A0));
+  Serial.println(analogRead(A5));
   delay(10);
 
 //  for (int i = 0; i < input.counter; i++) {

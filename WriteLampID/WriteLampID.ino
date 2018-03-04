@@ -3,7 +3,7 @@
 void setup() {
   // Use this to write the IDs to EEPROM
   Serial.begin(115200);
-  uint16_t ID = 132;
+  uint16_t ID = 1;
   EEPROM.write(0, ID >> 8);
   EEPROM.write(1, ID);
   
