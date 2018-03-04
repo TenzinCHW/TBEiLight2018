@@ -18,7 +18,6 @@ struct InputQueue {
         //        head++;
         head = head + 1;
       }
-
     } else {
       input[counter] = reading;
       counter++;
@@ -30,14 +29,24 @@ struct InputQueue {
   }
 };
 
-
-uint16_t filter[FILTER_SIZE] = {1,5,10,10,10};
+uint16_t filter[FILTER_SIZE] = {1, 5, 10, 10, 10};
 InputQueue input;
 uint16_t j;
 uint16_t cor_sum;
 
 void read_value() {
   input.push(analogRead(A5));
+  cor_sum = 0;
+
+  //    corrrelation part
+  for (j = 0; j < FILTER_SIZE; j++) {
+    // multiply filter[i] with the i-th element of input
+    cor_sum += input.get_val(j) * filter[j];
+  }
+  Serial.println(cor_sum);
+  if (cor_sum > THRESHOLD) {
+    Serial.println(F("yey"));
+  }
 }
 
 void setup() {
@@ -49,14 +58,6 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
-  cor_sum = 0;
-
-  //    corrrelation part
-  for (j = 0; j < FILTER_SIZE; j++) {
-    // multiply filter[i] with the i-th element of input
-    cor_sum += input.get_val(j) * filter[j];
-  }
-
   //    int peak = input.counter;
   //    bool keeplooking = true;
   //    while(keeplooking) {
@@ -68,20 +69,8 @@ void loop() {
   //          keeplooking = false;
   //       }
 
-//  if (cor_sum > THRESHOLD) {
-//    Serial.println("yey");
-//  }
-//  Serial.println(input.get_val(FILTER_SIZE-1));
-  Serial.println(analogRead(A5));
+  //  Serial.println(input.get_val(FILTER_SIZE-1));
+  //  Serial.println(analogRead(A5));
   delay(10);
-
-//  for (int i = 0; i < input.counter; i++) {
-//    Serial.print(input.input[i]);  // 1st refers to InputQueue, 2nd refers to the array within
-//    Serial.print(" ");
-//  }
-//  Serial.println();
-//
-//  delay(10);        // delay in between reads for stability
-
 }
 
