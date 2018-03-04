@@ -39,7 +39,7 @@ void setup() {
     leds[i] = CRGB::Black;
   }
   FastLED.show();
-  
+
   for (int i = 0; i < PLOAD_WIDTH - 1; i++) {
     tx_buf[i] = i;
   }

@@ -3,7 +3,7 @@
 #include "printf.h"
 #include <RF24.h>
 
-RF24 radio (9, 10);
+RF24 radio (10, 9);
 
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 
@@ -31,8 +31,8 @@ void setup() {
 
 void loop() {
   //  read_and_reply(0, rx_buf);
-//    read_and_reply(1, rx_buf);
-  read_if_avail(rx_buf);
+    read_and_reply(1, rx_buf);
+//  read_if_avail(rx_buf);
 }
 
 void read_if_avail(uint8_t* buf) {

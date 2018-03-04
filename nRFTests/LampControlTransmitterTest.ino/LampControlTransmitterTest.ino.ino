@@ -2,6 +2,7 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include "printf.h"
+#include "FastLED.h"
 
 #define PLOAD_WIDTH 32
 
@@ -13,6 +14,7 @@ byte rx_buf[PLOAD_WIDTH];
 const unsigned char ADDRESS1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
 const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
+CRGB leds[4];
 long start; // For timing
 
 void setup() {
@@ -30,7 +32,9 @@ void setup() {
   radio.startListening();
   radio.printDetails();
   Serial.println("Transmitter");
-
+  FastLED.addLeds<UCS1903, 2>(leds, 4);
+  setRGB(255,255,255);
+  
   for (int i = 0; i < PLOAD_WIDTH - 1; i++) {
     tx_buf[i] = i;
   }
@@ -39,7 +43,12 @@ void setup() {
 }
 
 void loop() {
-  delay(10);
+  setRGB(255,0,0);
+  delay(1000);
+  setRGB(0,0,255);
+  delay(1000);
+  setRGB(0,255,0);
+  delay(1000);
 }
 
 void broadcast(uint8_t* buf, unsigned char* address) {
@@ -78,11 +87,13 @@ void wait_for_reply() {
   radio.startListening();
   long total = 0;
   long onemsgtime;
-  for (int i = 0; i < 1024; i++) {
+  for (int i = 0; i < 50; i++) {
     start = millis();
     tx_buf[PLOAD_WIDTH - 1] = i;
-    broadcast(tx_buf, ADDRESS1);
-    while (!radio.available());
+    while (!radio.available()) {
+      broadcast(tx_buf, ADDRESS1);
+      delay(1);
+    }
     if (read_if_avail(rx_buf)) Serial.println("woohoo");
     onemsgtime = millis() - start;
     total += onemsgtime;
@@ -90,5 +101,12 @@ void wait_for_reply() {
 
   Serial.print(F("Total time: "));
   Serial.println(total);
+}
+
+void setRGB(int r, int g, int b) {
+  for (int i = 0; i < 4; i++) {
+    leds[i].setRGB(r, g, b);
+  }
+  FastLED.show();
 }
 
