@@ -31,8 +31,8 @@ void setup() {
 
 void loop() {
   //  read_and_reply(0, rx_buf);
-    read_and_reply(1, rx_buf);
-//  read_if_avail(rx_buf);
+  read_and_reply(1, rx_buf);
+  //  read_if_avail(rx_buf);
 }
 
 void read_if_avail(uint8_t* buf) {

@@ -92,7 +92,7 @@ void wait_for_reply() {
     tx_buf[PLOAD_WIDTH - 1] = i;
     while (!radio.available()) {
       broadcast(tx_buf, ADDRESS1);
-      delay(1);
+      delay(2);
     }
     if (read_if_avail(rx_buf)) Serial.println("woohoo");
     onemsgtime = millis() - start;
