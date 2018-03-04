@@ -67,7 +67,7 @@ def send_global_si(last_global):
         message += str(expiry) + '\n'
         send_msg(message)
         print('global si: ', message)
-        return last_global
+    return last_global
 
 def send_si(lamp_id):
     # message = i $ lamp_id $ lamp_loc \n
