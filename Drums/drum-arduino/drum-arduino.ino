@@ -14,6 +14,7 @@ bool serialIn = false;
 bool radioIn = false;
 // global SI: "I$256,257:258,259:260,261:262,263$100,200,100:20,20,20:30,30,30:0,0,255$90$90$255"
 // non-global SI: "i$20$256,257"
+int serialCounter = 0;
 
 void setup() {
   startup_nRF();
@@ -48,24 +49,22 @@ void parse_input() {
 void handle_rpi_in() {
   char *tokens[32];
   char *ptr = NULL;
-  byte tokenIndex = 0;
+  uint8_t tokenIndex = 0;
 
-  Serial.print("received: ");
+  Serial.print(F("received: "));
   /* get the first token */
   ptr = strtok(serialInput, "$:,");
+  //  Serial.println(ptr);
   while (ptr != NULL) {
     tokens[tokenIndex] = ptr;
-    Serial.print(String(ptr));
+    Serial.print(tokens[tokenIndex]);
     tokenIndex++;
     ptr = strtok(NULL, "$:,");
   }
-  //  Serial.write("\0");
-  //  Serial.println();
 
-Serial.println(tokens[0][0]);
   // start dealing with the scenarios from rpi: global/non-global SI
   if ( tokens[0][0] == 'I' ) {
-    Serial.println("global SI received: ");
+    Serial.println(F("Sending global SI"));
 
     set_setup(radioOutput, SETUP_MSG);
     set_global(radioOutput);
@@ -94,7 +93,7 @@ Serial.println(tokens[0][0]);
 
   else if (tokens[0][0] == 'i') {
 
-    Serial.println("non-global SI received: ");
+    Serial.println(F("Sending non-global SI"));
 
     set_setup(radioOutput, SETUP_MSG);
     tokenIndex = 1;
@@ -105,12 +104,13 @@ Serial.println(tokens[0][0]);
     //    radioOutput[tokenIndex + 3] = '\0';
   }
   else {
-    Serial.println("error ");
+    Serial.println("error");
   }
   // send to lamps
   broadcast(0, radioOutput);
   serialIn = false;
   reset_serialInput();
+  Serial.println(F("Done"));
 
   // ====== test ======
   //  Serial.write((uint8_t*)radioOutput, sizeof(radioOutput));
@@ -134,13 +134,13 @@ void handle_lamp_in() {
 
   if (radioInput[0] == 8) {
     //handle global SR
-    Serial.println("R");
+    Serial.println(F("R"));
   }
   else if (radioInput[0] << 5 == 0) {
     //handle non-global SR
     //    char* lamp_id;
-    Serial.write(byte(radioInput));
-    Serial.write('\n');
+    //    Serial.write(byte(radioInput));
+    //    Serial.write('\n');
     uint16_t id = radioInput[1] << 8 | radioInput[2];
     Serial.print("r$");
     Serial.println(id);
@@ -162,22 +162,26 @@ void handle_lamp_in() {
   response.  Multiple bytes of data may be available.
 */
 void serialEvent() {
-  while (Serial.available()) {
-    int counter = 0;
+  Serial.println(F("serialevent"));
+  char inChar;
+  while (Serial.available() && !serialIn) {
     // get the new byte:
-    char inChar = (char)Serial.read();
-    Serial.print(inChar);
-    // add it to the inputString:
-    serialInput[counter] = inChar;
-    counter++;
+    inChar = (char)Serial.read();
+    // add it to the serialInput buffer:
+    serialInput[serialCounter] = inChar;
+    serialCounter++;
     // if the incoming character is a newline, set a flag
     // so the main loop can do something about it:
     if (inChar == '\n') {
-      for (int i = 0; i < SERIAL_SZ; i++) Serial.print(serialInput[i]);
-      Serial.println();
+      Serial.println(F("ohno"));
+      serialCounter = 0;
       serialIn = true;
     }
   }
+  //  for (int i = 0; i < SERIAL_SZ; i++) {
+  //    Serial.print(serialInput[i]);
+  //  }
+  //  Serial.println();
 }
 
 void reset_serialInput() {
