@@ -48,13 +48,13 @@ bool test_global_setup() {
 
   global_setup();
   bool passed;
-  passed = (state.drums[0].x == dx1 / 10.0) && (state.drums[0].y == dy1 / 10.0) && (state.drums[0].colour[0] == rgb1[0])
+  passed = (state.drums[0].dist_from_lamp == sqrt(pow(dx1 / 10.0-state.x,2)+pow(dy1 / 10.0-state.y,2))) && (state.drums[0].colour[0] == rgb1[0])
            && (state.drums[0].colour[1] == rgb1[1]) && (state.drums[0].colour[2] == rgb1[2]);
-  passed = passed && (state.drums[1].x == dx2 / 10.0) && (state.drums[1].y == dy2 / 10.0) && (state.drums[1].colour[0] == rgb2[0])
+  passed = passed && (state.drums[1].dist_from_lamp == sqrt(pow(dx2 / 10.0-state.x,2)+pow(dy2 / 10.0-state.y,2))) && (state.drums[1].colour[0] == rgb2[0])
            && (state.drums[1].colour[1] == rgb2[1]) && (state.drums[1].colour[2] == rgb2[2]);
-  passed = passed && (state.drums[2].x == dx3 / 10.0) && (state.drums[2].y == dy3 / 10.0) && (state.drums[2].colour[0] == rgb3[0])
+  passed = passed && (state.drums[2].dist_from_lamp == sqrt(pow(dx3 / 10.0-state.x,2)+pow(dy3 / 10.0-state.y,2))) && (state.drums[2].colour[0] == rgb3[0])
            && (state.drums[2].colour[1] == rgb3[1]) && (state.drums[2].colour[2] == rgb3[2]);
-  passed = passed && (state.drums[3].x == dx4 / 10.0) && (state.drums[3].y == dy4 / 10.0) && (state.drums[3].colour[0] == rgb4[0])
+  passed = passed && (state.drums[3].dist_from_lamp == sqrt(pow(dx4 / 10.0-state.x,2)+pow(dy4 / 10.0-state.y,2))) && (state.drums[3].colour[0] == rgb4[0])
            && (state.drums[3].colour[1] == rgb4[1]) && (state.drums[3].colour[2] == rgb4[2]);
   if (!passed) {
     Serial.println(F("drums not initialized properly"));
@@ -187,8 +187,7 @@ DrumHit copy_drum_hits(DrumHit hit) {
 
 Drum copy_drum(Drum drum) {
   Drum drumcpy;
-  drumcpy.x = drum.x;
-  drumcpy.y = drum.y;
+  drumcpy.dist_from_lamp = drum.dist_from_lamp;
   for (int i = 0; i < 3; i++) drumcpy.colour[i] = drum.colour[i];
   return drumcpy;
 }
@@ -242,8 +241,7 @@ bool compare_drum_hits(DrumHit orig_hit, DrumHit test_hit) {
 }
 
 bool compare_drums(Drum orig_drum, Drum test_drum) {
-  bool x = orig_drum.x == test_drum.x;
-  bool y = orig_drum.y == test_drum.y;
+  bool distance = orig_drum.dist_from_lamp == test_drum.dist_from_lamp;
   bool colour = true;
   for (int i = 0; i < 3; i++) {
     if (orig_drum.colour[i] != test_drum.colour[i]) {
@@ -251,7 +249,7 @@ bool compare_drums(Drum orig_drum, Drum test_drum) {
       break;
     }
   }
-  return x && y && colour;
+  return distance && colour;
 }
 
 bool compare_hit_queues(HitQueue orig_hits, HitQueue test_hits) {

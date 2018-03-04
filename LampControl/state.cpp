@@ -10,7 +10,6 @@ void init_ID() {
 void req_indiv_setup() {
   if (!state.indiv_var_set) {
     uint8_t num_try = 0;
-    for (int i = 0; i < 3; i++) Serial.println(state.msg_buf[i]);
     while (!state.indiv_var_set && (num_try < RETRY_TIMES)) {
       make_indiv_req(state.msg_buf, state.ID);
       Serial.println(F("Requesting indiv"));
@@ -83,6 +82,7 @@ void read_and_handle() {
       if (is_global(state.msg_buf)) global_setup();
       else if (addressed_to_id(state.msg_buf, state.ID)) indiv_setup();
     } else if (msg_type == DRUM_HIT_MSG) {
+      Serial.println(F("Hit detected"));
       state.last_hello = millis();
       add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
     } else if (msg_type == HELLO_MSG) {
@@ -91,20 +91,20 @@ void read_and_handle() {
   }
 }
 
-void read_drum_hit() {
-  if (read_if_avail(state.msg_buf)) {
-    uint8_t msg_type = get_msg_type(state.msg_buf);
-    forward(msg_type);
-    switch (msg_type) {
-      case DRUM_HIT_MSG :
-        state.last_hello = millis();
-        add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
-        break;
-      case HELLO_MSG :
-        state.last_hello = millis();
-    }
-  }
-}
+//void read_drum_hit() {
+//  if (read_if_avail(state.msg_buf)) {
+//    uint8_t msg_type = get_msg_type(state.msg_buf);
+//    forward(msg_type);
+//    switch (msg_type) {
+//      case DRUM_HIT_MSG :
+//        state.last_hello = millis();
+//        add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
+//        break;
+//      case HELLO_MSG :
+//        state.last_hello = millis();
+//    }
+//  }
+//}
 
 void forward(uint8_t msg_type) {
   if (state.is_relay && to_be_relayed(state.msg_buf)) {
@@ -141,8 +141,11 @@ void indiv_setup() {
 void global_setup() {
   for (uint8_t i = 0; i < NUM_OF_DRUMS; i++) {
     Drum newdrum;
-    newdrum.x = get_drum_x(state.msg_buf, i);
-    newdrum.y = get_drum_y(state.msg_buf, i);
+    int drumx = get_drum_x(state.msg_buf, i);
+    int drumy = get_drum_y(state.msg_buf, i);
+    newdrum.dist_from_lamp = sqrt(pow(drumx-state.x,2) + pow(drumy-state.y,2));
+//    newdrum.x = get_drum_x(state.msg_buf, i);
+//    newdrum.y = get_drum_y(state.msg_buf, i);
     for (uint8_t j = 0; j < 3; j++) {
       newdrum.colour[j] = get_drum_colour(state.msg_buf, i, j);
     }
@@ -158,7 +161,7 @@ void global_setup() {
 
   Serial.println(F("Setting up global"));
   for (uint8_t i = 0; i < NUM_OF_DRUMS; i++) {
-    Serial.print(F("Drum ")); Serial.print(i); Serial.print(F(" X :")); Serial.print(state.drums[i].x); Serial.print(F(" Y :")); Serial.println(state.drums[i].y);
+    Serial.print(F("Drum ")); Serial.print(i); Serial.print(F(" Dist from lamp :")); Serial.print(state.drums[i].dist_from_lamp);
     for (uint8_t j = 0; j < 3; j++) {
       Serial.println(state.drums[i].colour[j]);
     }

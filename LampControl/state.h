@@ -21,8 +21,7 @@ struct DrumHit {
 };
 
 struct Drum {
-  float x;
-  float y;
+  float dist_from_lamp;
   uint8_t colour[3];
 };
 

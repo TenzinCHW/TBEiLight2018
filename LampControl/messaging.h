@@ -60,7 +60,7 @@ uint8_t get_drum_colour(byte* msg, uint8_t drum_index, uint8_t colour);
 float get_wavelength(byte* msg);
 uint16_t get_period(byte* msg);
 uint16_t get_expiry(byte* msg);
-bool addressed_to_id(byte* msg, uint16_t id); // TODO test
+bool addressed_to_id(byte* msg, uint16_t id);
 float get_lamp_x(char* msg);
 float get_lamp_y(char* msg);
 uint8_t get_drum_id(byte* msg);
