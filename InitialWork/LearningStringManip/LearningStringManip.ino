@@ -1,5 +1,5 @@
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   char* meow = "1.5,3.5:0.4:23";
 
   char* woof = strtok(meow, ":");
@@ -14,5 +14,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  while (true) {
+    Serial.println("meow");
+    delay(1000);
+  }
 }

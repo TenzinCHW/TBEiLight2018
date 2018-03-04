@@ -3,7 +3,7 @@
 #include "printf.h"
 #include <RF24.h>
 
-RF24 radio (9, 10);
+RF24 radio (10, 9);
 
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 

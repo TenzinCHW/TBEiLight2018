@@ -2,10 +2,11 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include "printf.h"
+#include "FastLED.h"
 
 #define PLOAD_WIDTH 32
 
-RF24 radio (9, 10);
+RF24 radio (10, 9);
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
@@ -14,6 +15,7 @@ unsigned char ADDRESS1[5]  = {0xb1, 0x43, 0x88, 0x99, 0x45}; // Define a static 
 unsigned char ADDRESS0[5]  = {0xb0, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
 //just change b1 to b2 or b3 to send to other pip on reciever
 
+CRGB leds[4];
 long start; // For timing
 
 void setup() {
@@ -32,7 +34,12 @@ void setup() {
   radio.stopListening();
   radio.printDetails();
   Serial.println("Transmitter");
-
+  FastLED.addLeds<UCS1903B, 2>(leds, 4);
+  for (int i = 0; i < 4; i++) {
+    leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+  
   for (int i = 0; i < PLOAD_WIDTH - 1; i++) {
     tx_buf[i] = i;
   }
@@ -48,7 +55,7 @@ void broadcast(uint8_t* buf, unsigned char* address) {
   radio.stopListening();
   radio.openWritingPipe(address); // No need to close, just change the address. Only 1 address can be written to at the same time.
   radio.startWrite(buf, PLOAD_WIDTH, true);
-//  Serial.println(F("Wrote liao"));
+  //  Serial.println(F("Wrote liao"));
   radio.txStandBy();
   radio.startListening();
 }
@@ -59,7 +66,7 @@ bool read_if_avail(uint8_t* buf) {
       return false;
     }
     read_and_flush(buf);
-//    print_buffer(buf, PLOAD_WIDTH);
+    print_buffer(buf, PLOAD_WIDTH);
     return true;
   } else {
     return false;
@@ -83,8 +90,10 @@ void wait_for_reply() {
   for (int i = 0; i < 1024; i++) {
     start = millis();
     tx_buf[PLOAD_WIDTH - 1] = i;
-    broadcast(tx_buf, ADDRESS1);
-    while (!radio.available());
+    while (!radio.available()) {
+      broadcast(tx_buf, ADDRESS1);
+      delay(1);
+    }
     if (read_if_avail(rx_buf)) Serial.println("woohoo");
     onemsgtime = millis() - start;
     total += onemsgtime;
