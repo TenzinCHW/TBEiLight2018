@@ -5,6 +5,7 @@
 
 #define FILTER_SIZE 5
 #define THRESHOLD 60
+#define HIT_MIN_TIME 100
 
 struct InputQueue {
   int input[FILTER_SIZE];
@@ -38,6 +39,7 @@ uint16_t j;
 uint16_t cor_sum;
 uint16_t hit_counter;
 byte msg_buf[PACKET_SZ];
+long time_since_last_hit;
 
 void read_value() {
   input.push(analogRead(A5));
@@ -48,11 +50,14 @@ void read_value() {
     // multiply filter[i] with the i-th element of input
     cor_sum += input.get_val(j) * filter[j];
   }
-  Serial.println(cor_sum);
-  if (cor_sum > THRESHOLD) {
+  if (cor_sum > THRESHOLD && millis() - time_since_last_hit > HIT_MIN_TIME) {
+//    Serial.println(F("Sending"));
     if (cor_sum > 400) cor_sum = 100;
-    else cor_sum = cor_sum / 400 * 100;
+    else cor_sum = float(cor_sum) / 10;
+//    Serial.println(cor_sum);
     send_drum_hit(hit_counter, cor_sum);
+    hit_counter++;
+    time_since_last_hit = millis();
   }
 }
 
@@ -62,6 +67,10 @@ void setup() {
   ID = EEPROM.read(0) << 8 | EEPROM.read(1);
   Timer1.initialize(20000);
   Timer1.attachInterrupt(read_value);
+  long wake_everyone_up = millis();
+  while (millis() - wake_everyone_up < 10000) {
+    send_hello();
+  }
 }
 
 void loop() {
@@ -70,12 +79,12 @@ void loop() {
 }
 
 void send_hello() {
+  Serial.println(F("Hello there"));
   make_hello(msg_buf);
-  broadcast(msg_buf, 0);
+  broadcast(0, msg_buf);
 }
 
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
-  broadcast(msg_buf, 0);
+  broadcast(0, msg_buf);
 }
-

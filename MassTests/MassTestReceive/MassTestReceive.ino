@@ -87,6 +87,7 @@ void loop() {
   }
   if (millis() - last_hit_hello > 30000) {
     Serial.println(F("Gonna sleep"));
+    setRGB(0,0,0);
     LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
                   SPI_OFF, USART0_OFF, TWI_OFF);
   }
