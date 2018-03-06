@@ -4,11 +4,13 @@
 #include "printf.h"
 #include <RF24.h>
 #include "FastLED.h"
+#include "LowPower.h"
 
 RF24 radio (10, 9);
 
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 #define DRUM_HIT_MSG 3
+#define HELLO_MSG 4
 #define DRUM_ID_BYTE 1
 #define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
@@ -29,6 +31,8 @@ uint8_t r;
 uint8_t g;
 uint8_t b;
 bool off_on = false;
+long last_hit_hello;
+long stay_awake;
 
 void setup() {
   Serial.begin(115200);
@@ -50,28 +54,36 @@ void setup() {
   FastLED.addLeds<UCS1903, 2>(leds, 4);
   setRGB(0, 0, 0);
   randomSeed(analogRead(0));
-
   delay(1000);
+  stay_awake = millis();
 }
 
 void loop() {
-  //  read_and_reply(0, rx_buf);
-  //  read_and_reply(1, rx_buf);
-  if (read_if_avail(rx_buf)) {
-    Serial.println(F("Received something"));
-    if (rx_buf[0] == DRUM_HIT_MSG) {
-      drum_id = get_drum_id(rx_buf);
-      max_random_wait = random(5000);
-      blink_count = random(MIN_BLINK, MAX_BLINK);
-      incoming_time = millis();
+  while (millis() - stay_awake < 1000) {
+    if (read_if_avail(rx_buf)) {
+      Serial.println(F("Received something"));
+      if (rx_buf[0] == DRUM_HIT_MSG) {
+        drum_id = get_drum_id(rx_buf);
+        max_random_wait = random(5000);
+        blink_count = random(MIN_BLINK, MAX_BLINK);
+        incoming_time = millis();
+        last_hit_hello = millis();
+      } else if (rx_buf[0] == HELLO_MSG) {
+        last_hit_hello = millis();
+      }
+      //    if (rx_buf[0] == 255) {
+      //      Serial.println(F("Cycling"));
+      //      cycle();
+      //      setRGB(colours[counter][0], colours[counter][1], colours[2]);
+      //    }
     }
-    //    if (rx_buf[0] == 255) {
-    //      Serial.println(F("Cycling"));
-    //      cycle();
-    //      setRGB(colours[counter][0], colours[counter][1], colours[2]);
-    //    }
   }
-  
+  if (millis() - last_hit_hello > 30000) {
+    Serial.println(F("Gonna sleep"));
+    LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
+                  SPI_OFF, USART0_OFF, TWI_OFF);
+  }
+  stay_awake = millis();
 }
 
 bool read_if_avail(uint8_t* buf) {
@@ -144,26 +156,26 @@ void hit_toggle() {
 
 // For drum hits //
 /*
- * input msg: pointer to state message buffer
- * return: ID of drum that sent the message currently in state message buffer (0-3)
- */
+   input msg: pointer to state message buffer
+   return: ID of drum that sent the message currently in state message buffer (0-3)
+*/
 uint8_t get_drum_id(byte* msg) {
   return msg[DRUM_ID_BYTE];
 }
 
-/* 
- *  input msg: pointer to state message buffer
- * return: intensity from 0 to 1
- */
+/*
+    input msg: pointer to state message buffer
+   return: intensity from 0 to 1
+*/
 float get_hit_intensity(byte* msg) {
-  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]);
-//  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]) / 100.0;
+  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY + 1]);
+  //  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]) / 100.0;
 }
 
 /*
- * input msg: pointer to state message buffer
- * return: drum hit counter of this drum
- */
+   input msg: pointer to state message buffer
+   return: drum hit counter of this drum
+*/
 uint16_t get_hit_counter(byte* msg) {
-  return msg[DRUM_COUNTER_BYTE] << 8 | msg[DRUM_COUNTER_BYTE + 1];  //msg[DRUM_COUNTER_BYTE] << 24 | msg[DRUM_COUNTER_BYTE + 1] << 16 | 
+  return msg[DRUM_COUNTER_BYTE] << 8 | msg[DRUM_COUNTER_BYTE + 1];  //msg[DRUM_COUNTER_BYTE] << 24 | msg[DRUM_COUNTER_BYTE + 1] << 16 |
 }
