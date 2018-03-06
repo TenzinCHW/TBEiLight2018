@@ -28,7 +28,7 @@ def setup_network():
         msg = ser.readline()
         ser.flush()
         if msg:
-            # try:
+            try:
                 #parsed = msg.decode('utf-8').strip('\r\n')
                 parsed = msg.decode('latin-1').strip('\r\n')
                 messages = parsed.split('$')
@@ -45,16 +45,15 @@ def setup_network():
                     register_ack(lamp_id)
                 else:
                     print(parsed)
-
-            # except:
-            #     string = msg.decode('latin-1')
-            #     print("something went wrong, serial msg: ", string)
+            except:
+                string = msg.decode('latin-1')
+                print("something went wrong, serial msg: ", string)
 
     # return True
 
 def send_global_si(last_global):
     # message = I $ dloc1:dloc2:dloc3:dloc4 $ drgb1:drgb2:drgb3:drgb4 $ wavelength $ period $ expiry \n
-    if time() - last_global > 10:
+    #if time() - last_global > 10:
         last_global = time()
         message = 'I$'
         for loc in drum_loc: 
@@ -67,12 +66,13 @@ def send_global_si(last_global):
         message += str(expiry) + '\n'
         send_msg(message)
         print('global si: ', message)
-    return last_global
+        return last_global
+    #return last_global
 
 def send_si(lamp_id):
     # message = i $ lamp_id $ lamp_loc \n
-    if lamp_id not in lamp_acks:
-        loc = lamps[int(lamp_id)]['loc']
+    #if lamp_id not in lamp_acks:
+        loc = lamps[lamp_id]
         message = 'i$' + lamp_id + '$' + str(loc[0]) + ',' + str(loc[1]) + '\n' 
         send_msg(message)
         print('non-global si: ', message)
@@ -96,7 +96,4 @@ if __name__ == '__main__':
     # while (time() - start_time) < 20:
     while True:
         setup_network()
-
-
-
 
