@@ -23,6 +23,8 @@ CRGB leds[4];
 uint8_t blink_count = 0;
 uint8_t colours[][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {0, 255, 255}, {255, 255, 0}, {255, 0, 255}, {255, 255, 255}};
 uint8_t drum_id;
+long incoming_time;
+long max_random_wait;
 uint8_t r;
 uint8_t g;
 uint8_t b;
@@ -59,7 +61,9 @@ void loop() {
     Serial.println(F("Received something"));
     if (rx_buf[0] == DRUM_HIT_MSG) {
       drum_id = get_drum_id(rx_buf);
+      max_random_wait = random(5000);
       blink_count = random(MIN_BLINK, MAX_BLINK);
+      incoming_time = millis();
     }
     //    if (rx_buf[0] == 255) {
     //      Serial.println(F("Cycling"));
@@ -67,6 +71,7 @@ void loop() {
     //      setRGB(colours[counter][0], colours[counter][1], colours[2]);
     //    }
   }
+  
 }
 
 bool read_if_avail(uint8_t* buf) {
@@ -121,7 +126,7 @@ void setRGB(int r, int g, int b) {
 }
 
 void hit_toggle() {
-  if (blink_count > 0) {
+  if (blink_count > 0 && millis() - incoming_time > max_random_wait) {
     if (off_on) {
       r = colours[drum_id][0];
       g = colours[drum_id][1];
