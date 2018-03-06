@@ -11,11 +11,13 @@ RF24 radio (10, 9);
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 #define DRUM_HIT_MSG 3
 #define HELLO_MSG 4
+#define NUM_OF_DRUM 4
 #define DRUM_ID_BYTE 1
 #define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
 #define MAX_BLINK 15
 #define MIN_BLINK 5
+#define MAX_RAND_WAIT 3000
 
 unsigned char rx_buf[PLOAD_WIDTH] = {0};
 const unsigned char ADDRESS1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
@@ -23,13 +25,15 @@ const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 CRGB leds[4];
 uint8_t blink_count = 0;
-uint8_t colours[][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {0, 255, 255}, {255, 255, 0}, {255, 0, 255}, {255, 255, 255}};
-uint8_t drum_id;
+uint8_t colours[][3] = {{255, 255, 255}, {255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {0, 255, 255}, {255, 255, 0}, {255, 0, 255}};
+volatile bool hit_flag[NUM_OF_DRUM] = {0};
 long incoming_time;
-long max_random_wait;
+long random_wait;
+uint8_t index;
 uint8_t r;
 uint8_t g;
 uint8_t b;
+uint8_t colour_total;
 bool off_on = false;
 long last_hit_hello;
 long stay_awake;
@@ -63,13 +67,16 @@ void loop() {
     if (read_if_avail(rx_buf)) {
       Serial.println(F("Received something"));
       if (rx_buf[0] == DRUM_HIT_MSG) {
-        drum_id = get_drum_id(rx_buf);
-        max_random_wait = random(5000);
+        hit_flag[get_drum_id(rx_buf)] = true;
+        if (hit_flag[0] && hit_flag[1]) Serial.println(F("Both hit"));
+        choose_colour();
+        random_wait = random(MAX_RAND_WAIT);
         blink_count = random(MIN_BLINK, MAX_BLINK);
         incoming_time = millis();
         last_hit_hello = millis();
       } else if (rx_buf[0] == HELLO_MSG) {
         last_hit_hello = millis();
+//        Serial.println(colour_total);
       }
       //    if (rx_buf[0] == 255) {
       //      Serial.println(F("Cycling"));
@@ -138,11 +145,11 @@ void setRGB(int r, int g, int b) {
 }
 
 void hit_toggle() {
-  if (blink_count > 0 && millis() - incoming_time > max_random_wait) {
+  if (blink_count > 0 && millis() - incoming_time > random_wait) {
     if (off_on) {
-      r = colours[drum_id][0];
-      g = colours[drum_id][1];
-      b = colours[drum_id][2];
+      r = colours[colour_total][0];
+      g = colours[colour_total][1];
+      b = colours[colour_total][2];
     } else {
       r = 0;
       g = 0;
@@ -151,6 +158,11 @@ void hit_toggle() {
     }
     off_on = !off_on;
     setRGB(r, g, b);
+    if (blink_count == 0) {
+      for (uint8_t i = 0; i < NUM_OF_DRUM; i++) {
+        hit_flag[i] = false;
+      }
+    }
   }
 }
 
@@ -159,7 +171,7 @@ void hit_toggle() {
    input msg: pointer to state message buffer
    return: ID of drum that sent the message currently in state message buffer (0-3)
 */
-uint8_t get_drum_id(byte* msg) {
+uint8_t get_drum_id(byte * msg) {
   return msg[DRUM_ID_BYTE];
 }
 
@@ -167,7 +179,7 @@ uint8_t get_drum_id(byte* msg) {
     input msg: pointer to state message buffer
    return: intensity from 0 to 1
 */
-float get_hit_intensity(byte* msg) {
+float get_hit_intensity(byte * msg) {
   return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY + 1]);
   //  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]) / 100.0;
 }
@@ -176,6 +188,15 @@ float get_hit_intensity(byte* msg) {
    input msg: pointer to state message buffer
    return: drum hit counter of this drum
 */
-uint16_t get_hit_counter(byte* msg) {
+uint16_t get_hit_counter(byte * msg) {
   return msg[DRUM_COUNTER_BYTE] << 8 | msg[DRUM_COUNTER_BYTE + 1];  //msg[DRUM_COUNTER_BYTE] << 24 | msg[DRUM_COUNTER_BYTE + 1] << 16 |
 }
+
+uint8_t choose_colour() {
+  colour_total = 0;
+  for (uint8_t i = 0; i < NUM_OF_DRUM; i++) {
+    if (hit_flag[i]) colour_total += i;
+  }
+  Serial.println(colour_total);
+}
+
