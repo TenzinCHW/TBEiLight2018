@@ -90,6 +90,7 @@ void loop() {
     LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
                   SPI_OFF, USART0_OFF, TWI_OFF);
   }
+  setRGB(0,0,0);
   stay_awake = millis();
 }
 
@@ -164,7 +165,6 @@ void hit_toggle() {
       }
     }
   }
-  setRGB(0,0,0);
 }
 
 // For drum hits //
