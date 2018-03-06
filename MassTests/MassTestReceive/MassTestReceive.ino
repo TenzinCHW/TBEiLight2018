@@ -25,7 +25,7 @@ const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 CRGB leds[4];
 uint8_t blink_count = 0;
-uint8_t colours[][3] = {{255, 255, 255}, {255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {0, 255, 255}, {255, 255, 0}, {255, 0, 255}};
+uint8_t colours[][3] = {{60, 60, 60}, {60, 0, 0}, {0, 60, 0}, {0, 0, 60}, {0, 60, 60}, {60, 60, 0}, {60, 0, 60}};
 volatile bool hit_flag[NUM_OF_DRUM] = {0};
 long incoming_time;
 long random_wait;
@@ -164,6 +164,7 @@ void hit_toggle() {
       }
     }
   }
+  setRGB(0,0,0);
 }
 
 // For drum hits //
