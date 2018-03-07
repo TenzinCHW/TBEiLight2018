@@ -12,6 +12,7 @@
 #define MAX_HITS 80
 #define NUM_OF_DRUMS 4
 #define RETRY_TIMES 2
+#define WAIT_FOR_REPLY 100
 
 struct DrumHit {
   uint8_t drum_id;
@@ -21,6 +22,8 @@ struct DrumHit {
 };
 
 struct Drum {
+  float x;
+  float y;
   float dist_from_lamp;
   uint8_t colour[3];
 };

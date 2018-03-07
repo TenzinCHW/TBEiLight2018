@@ -16,7 +16,6 @@ const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 CRGB leds[4];
 long start; // For timing
-
 void setup() {
   Serial.begin(115200);
   radio.begin();
@@ -33,21 +32,21 @@ void setup() {
   radio.printDetails();
   Serial.println("Transmitter");
   FastLED.addLeds<UCS1903, 2>(leds, 4);
-  setRGB(255,255,255);
+  setRGB(128,128,128);
   
   for (int i = 0; i < PLOAD_WIDTH - 1; i++) {
     tx_buf[i] = i;
   }
 
-  wait_for_reply();
+//  wait_for_reply();
 }
 
 void loop() {
-  setRGB(255,0,0);
-  delay(1000);
-  setRGB(0,0,255);
-  delay(1000);
-  setRGB(0,255,0);
+//  setRGB(255,0,0);
+//  delay(1000);
+//  setRGB(0,0,255);
+//  delay(1000);
+//  setRGB(0,255,0);
   delay(1000);
 }
 
@@ -55,7 +54,6 @@ void broadcast(uint8_t* buf, unsigned char* address) {
   radio.stopListening();
   radio.openWritingPipe(address); // No need to close, just change the address. Only 1 address can be written to at the same time.
   radio.startWrite(buf, PLOAD_WIDTH, true);
-  //  Serial.println(F("Wrote liao"));
   radio.txStandBy();
   radio.startListening();
 }

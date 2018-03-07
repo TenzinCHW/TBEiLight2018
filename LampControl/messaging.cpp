@@ -170,7 +170,8 @@ uint8_t get_drum_id(byte* msg) {
  * return: intensity from 0 to 1
  */
 float get_hit_intensity(byte* msg) {
-  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]) / 100.0;
+  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]);
+//  return (msg[DRUM_HIT_INTENSITY] << 8 | msg[DRUM_HIT_INTENSITY+1]) / 100.0;
 }
 
 /*

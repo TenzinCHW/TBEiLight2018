@@ -65,9 +65,11 @@ void read_value() {
   }
   Serial.println(cor_sum);
   if (cor_sum > THRESHOLD) {
+    Serial.println(F("Sending"));
     if (cor_sum > 400) cor_sum = 100;
     else cor_sum = cor_sum / 400 * 100;
     send_drum_hit(hit_counter, cor_sum);
+    hit_counter++;
   }
 }
 

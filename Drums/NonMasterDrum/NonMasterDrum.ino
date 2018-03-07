@@ -6,6 +6,7 @@
 #define FILTER_SIZE 5
 #define THRESHOLD 60
 #define HIT_MIN_TIME 100
+#define NUM_RETRY 3
 
 struct InputQueue {
   int input[FILTER_SIZE];
@@ -86,5 +87,5 @@ void send_hello() {
 
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
-  broadcast(0, msg_buf);
+  for (uint8_t i = 0; i < NUM_RETRY; i++) broadcast(0, msg_buf);
 }

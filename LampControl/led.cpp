@@ -15,6 +15,8 @@ uint8_t temp_drum_id;
 
 void setup_lights() {
   FastLED.addLeds<CHIPSET, LED_PIN>(lights, NUM_LED);
+  for (uint8_t i = 0; i < NUM_LED; i++) lights[i].setRGB(0, 0, 0);
+  FastLED.show();
 }
 
 void set_rgb() {
@@ -27,17 +29,25 @@ void set_rgb() {
     delta_t = millis() - state.hits.hits[state.hits.head + i].incoming_time;
     temp_drum_id = state.hits.hits[state.hits.head + i].drum_id;
     dist = state.drums[temp_drum_id].dist_from_lamp;
-    wave_travelled = state.wavelength * delta_t;
-    dist_from_wave = abs(dist - wave_travelled);
-    base_intensity = src_intensity * pow(2.71, -dist_from_wave * pow(delta_t, 3)) * (wave_travelled - dist_from_wave);
+    wave_travelled = state.wavelength * delta_t/1000.0;
+    Serial.println(wave_travelled);
+    dist_from_wave = absolute(dist - wave_travelled);
+    base_intensity = src_intensity * pow(2, -dist_from_wave/10 * pow(delta_t, 2)) * (wave_travelled - dist_from_wave);
+    //    if (dist_from_wave < MAX_WAVE_DIST) base_intensity = src_intensity * pow(100, -dist_from_wave * WAVE_SPREAD);
+    //    else base_intensity = 0;
+//    Serial.println(base_intensity);
+    Serial.println(state.drums[temp_drum_id].dist_from_lamp);
     for (uint8_t j = 0; j < 3; j++) {
       total_intensity[j] += base_intensity * state.drums[temp_drum_id].colour[j];
     }
   }
 
+  //  Serial.print(F("Intensities: "));
   for (int i = 0; i < 3; i++) {
+    //    Serial.print(total_intensity[i]); Serial.print(F(" "));
     if (total_intensity[i] > 255) total_intensity[i] = 255;
   }
+  //  Serial.println(F(""));
 
   for (int i = 0; i < NUM_LED; i++) {
     lights[i].setRGB(total_intensity[0], total_intensity[1], total_intensity[2]);
@@ -46,4 +56,12 @@ void set_rgb() {
   FastLED.show();
 }
 
+void reset_lights() {
+  for (uint8_t i = 0; i < NUM_LED; i++) lights[i].setRGB(0, 0, 0);
+}
+
+float absolute(float num) {
+  if (num < 0) return -num;
+  return num;
+}
 
