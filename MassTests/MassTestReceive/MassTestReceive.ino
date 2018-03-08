@@ -140,7 +140,7 @@ void print_buffer(uint8_t* buf, uint8_t len) {
 }
 
 void setRGB(int r, int g, int b) {
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < NUM_OF_DRUM; i++) {
     leds[i].setRGB(r, g, b);
   }
   FastLED.show();
