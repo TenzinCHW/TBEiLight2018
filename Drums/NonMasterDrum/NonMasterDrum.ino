@@ -1,5 +1,6 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
+#include "FastLED.h"
 #include "comms.h"
 #include "messaging.h"
 
@@ -75,6 +76,7 @@ void setup() {
   long wake_everyone_up = millis();
 
   // SET LED BRIGHTNESS AND COLOUR
+  FastLED.addLeds<UCS1903, 2>(leds, NUM_LED);
   for (int i = 0; i < NUM_LED; i++) {
     leds[i].setRGB(45, 45, 45);
   }
