@@ -2,6 +2,7 @@
 #include <TimerOne.h>
 #include "comms.h"
 #include "messaging.h"
+#include <avr/wdt.h>
 
 #define FILTER_SIZE 5
 #define THRESHOLD 60
@@ -41,6 +42,7 @@ uint16_t cor_sum;
 uint16_t hit_counter;
 byte msg_buf[PACKET_SZ];
 long time_since_last_hit;
+long time_to_reset;
 
 void read_value() {
   input.push(analogRead(A5));
@@ -66,17 +68,26 @@ void setup() {
   startup_nRF();
   Serial.begin(115200);
   ID = EEPROM.read(0) << 8 | EEPROM.read(1);
+  MCUSR = 0; // clear prev resets
   Timer1.initialize(20000);
   Timer1.attachInterrupt(read_value);
   long wake_everyone_up = millis();
   while (millis() - wake_everyone_up < 10000) {
     send_hello();
+    delay(10);
   }
+//  time_to_reset = millis();
 }
 
 void loop() {
-  delay(10000);
+  delay(5000);
   send_hello();
+//  if ((millis() - time_to_reset) > 6000) {
+//    Serial.println(F("Restarting"));
+//    Timer1.detachInterrupt();
+//    wdt_enable(WDTO_15MS);
+//    for (;;) {}
+//  }
 }
 
 void send_hello() {
