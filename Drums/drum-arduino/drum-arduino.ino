@@ -100,13 +100,12 @@ void handle_rpi_in() {
                         );
   }
   else {
-    Serial.println("error");
+    Serial.println(F("error"));
   }
   // send to lamps
   broadcast(0, radioOutput);
   serialIn = false;
   reset_serialInput();
-  Serial.println(F("Done"));
 
   // ====== test ======
   //  Serial.write((uint8_t*)radioOutput, sizeof(radioOutput));

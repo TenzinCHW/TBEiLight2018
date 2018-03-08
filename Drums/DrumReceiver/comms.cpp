@@ -27,7 +27,7 @@ bool read_if_avail(uint8_t* buf) {
       return false;
     }
     read_and_flush(buf);
-//    print_buffer(buf, PACKET_SZ);
+    print_buffer(buf, PACKET_SZ);
     return true;
   } else {
     return false;
@@ -52,6 +52,8 @@ void broadcast(uint8_t addr, byte* msg) {
 }
 
 void print_buffer(uint8_t* buf, uint8_t len) {
-  for (int i = 0; i < len; i++) Serial.print(buf[i]);
-  Serial.println();
+  for (int i = 0; i < len; i++) {
+    Serial.print(buf[i]);
+    Serial.print(F(" "));
+  }
 }

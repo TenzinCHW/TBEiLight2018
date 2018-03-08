@@ -43,10 +43,6 @@
 #define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
 
-// ==== PACKING MSG ==== //
-void make_hello(byte* msg);
-void make_drum_hit(byte* msg, uint8_t id, uint16_t counter, uint8_t intensity);
-
 uint8_t get_drum_id(byte* msg);
 float get_hit_intensity(byte* msg);
 uint16_t get_hit_counter(byte* msg);

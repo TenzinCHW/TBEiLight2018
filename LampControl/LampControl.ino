@@ -9,7 +9,6 @@ extern State state;
 
 void setup() {
   Serial.begin(115200);
-  //  delay(1000);  // For stability
 
   // SETUP ID, COMMS AND LEDS //
   init_ID();

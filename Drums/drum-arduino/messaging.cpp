@@ -16,7 +16,7 @@ void clear_header(byte* msg) {
 }
 
 void set_setup(byte* msg, uint8_t msg_type) {
-    msg[0] |= msg_type;
+    msg[0] = msg_type;
 }
 
 void set_global(byte* msg) {

@@ -40,6 +40,8 @@ void read_and_flush(uint8_t* buf) {
 }
 
 void broadcast(uint8_t addr, byte* msg) {
+  Serial.print(F("Sending this: "));
+  print_buffer(msg, PACKET_SZ);
   radio.stopListening();
   switch (addr) {
     case 0 : radio.openWritingPipe(ADDR0);
@@ -52,6 +54,9 @@ void broadcast(uint8_t addr, byte* msg) {
 }
 
 void print_buffer(uint8_t* buf, uint8_t len) {
-  for (int i = 0; i < len; i++) Serial.print(buf[i]);
+  for (int i = 0; i < len; i++) {
+    Serial.print(buf[i]);
+    Serial.print(F(" "));
+  }
   Serial.println();
 }
