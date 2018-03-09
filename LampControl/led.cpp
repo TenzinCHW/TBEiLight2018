@@ -32,12 +32,12 @@ void set_rgb() {
     wave_travelled = state.wavelength/state.period * delta_t/1000.0;
 //    Serial.println(wave_travelled);
     dist_from_wave = absolute(dist - wave_travelled);
-    base_intensity = src_intensity * pow(2, -dist_from_wave/10 * pow(delta_t, 2)) * (wave_travelled - dist_from_wave);
+    base_intensity = 0.001 *  src_intensity * pow(2, -dist_from_wave/10 * pow(delta_t/1000, 2)) * (wave_travelled - dist_from_wave);
     //    if (dist_from_wave < MAX_WAVE_DIST) base_intensity = src_intensity * pow(100, -dist_from_wave * WAVE_SPREAD);
     //    else base_intensity = 0;
 //    Serial.println(base_intensity);
     for (uint8_t j = 0; j < 3; j++) {
-      total_intensity[j] += base_intensity * state.drums[temp_drum_id].colour[j];
+      total_intensity[j] -= base_intensity * state.drums[temp_drum_id].colour[j];
     }
   }
   Serial.println(total_intensity[0]);
