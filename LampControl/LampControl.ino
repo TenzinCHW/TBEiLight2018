@@ -28,4 +28,5 @@ void loop() {
     req_indiv_setup();
     req_global_setup();
   } else main_loop();
+  delay(50);  // At most update 20 times per second. No one will notice.
 }

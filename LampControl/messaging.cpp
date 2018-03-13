@@ -145,7 +145,7 @@ bool addressed_to_id(byte* msg, uint16_t id) {
  * return: x-coordinate of lamp in metres
  */
 float get_lamp_x(char* msg) {
-    return (msg[LAMP_X1] << 8 | msg[LAMP_X1+1]) / 10.0;
+    return (msg[LAMP_X1] << 8 | msg[LAMP_X2]) / 10.0;
 }
 
 /*
@@ -153,7 +153,7 @@ float get_lamp_x(char* msg) {
  * return: y-coordinate of lamp in metres
  */
 float get_lamp_y(char* msg) {
-    return (msg[LAMP_Y1] << 8 | msg[LAMP_Y1+1]) / 10.0;
+    return (msg[LAMP_Y1] << 8 | msg[LAMP_Y2]) / 10.0;
 }
 
 // For drum hits //

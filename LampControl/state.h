@@ -11,7 +11,7 @@
 
 #define MAX_HITS 80
 #define NUM_OF_DRUMS 4
-#define RETRY_TIMES 2
+#define RETRY_TIMES 1
 #define WAIT_FOR_REPLY 100
 
 struct DrumHit {

@@ -12,7 +12,7 @@
 #define WAVE_SPREAD 20
 
 void setup_lights();
-void set_rgb(); // TODO test
+void set_rgb();
 void reset_lights();
 float absolute(float num);
 

@@ -26,7 +26,9 @@
 // INDIV SETUP //
 #define LAMP_ID 1
 #define LAMP_X1 3
+#define LAMP_X2 4
 #define LAMP_Y1 5
+#define LAMP_Y2 6
 
 // GLOBAL SETUP //
 #define DRUM_X1_START 1
