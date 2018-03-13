@@ -21,6 +21,14 @@ void startup_nRF() {
   radio.printDetails();
 }
 
+void radio_on() {
+  radio.powerUp();
+}
+
+void radio_off() {
+  radio.powerDown();
+}
+
 bool read_if_avail(uint8_t* buf) {
   if (radio.available()) {
     if (radio.getDynamicPayloadSize() < 1) {
@@ -39,14 +47,14 @@ void read_and_flush(uint8_t* buf) {
   radio.flush_rx();
 }
 
-void broadcast(uint8_t addr, byte* msg) {
+void broadcast(uint8_t addr, byte* msg, uint8_t sz) { // TODO test out if can write specific number of bytes
   radio.stopListening();
   switch (addr) {
     case 0 : radio.openWritingPipe(ADDR0);
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.startWrite(msg, PACKET_SZ, true);
+  radio.startWrite(msg, sz, true);
   radio.txStandBy();
   radio.startListening();
 }

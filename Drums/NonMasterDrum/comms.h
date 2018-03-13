@@ -10,7 +10,7 @@
 void startup_nRF();
 bool read_if_avail(uint8_t* buf);
 void read_and_flush(uint8_t* buf);
-void broadcast(uint8_t addr, byte* msg);
+void broadcast(uint8_t addr, byte* msg, uint8_t sz);
 void print_buffer(uint8_t* buf, uint8_t len);
 
 #endif

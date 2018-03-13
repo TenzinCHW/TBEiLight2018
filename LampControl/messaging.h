@@ -29,6 +29,8 @@
 #define LAMP_X2 4
 #define LAMP_Y1 5
 #define LAMP_Y2 6
+#define INDIV_REQ_SZ 3
+#define ACK_SZ 3
 
 // GLOBAL SETUP //
 #define DRUM_X1_START 1
@@ -39,11 +41,16 @@
 #define WAVELENGTH_BYTE 29
 #define PERIOD_BYTE 30
 #define EXPIRY_BYTE 31
+#define GLOBAL_REQ_SZ 1
 
 // DRUM HIT //
 #define DRUM_ID_BYTE 1
 #define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
+#define DRUM_HIT_SZ 6
+
+// HELLO //
+#define HELLO_SZ 1
 
 // ==== PACKING MSG ==== //
 void set_relay_bit(byte* msg);

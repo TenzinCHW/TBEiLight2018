@@ -41,7 +41,7 @@ void set_rgb() {
 
   for (int i = 0; i < 3; i++) {
     //    Serial.print(total_intensity[i]); Serial.print(F(" "));
-    if (total_intensity[i] > 255) total_intensity[i] = 255;
+    if (total_intensity[i] > 60) total_intensity[i] = 60;
   }
 
   for (int i = 0; i < NUM_LED; i++) {

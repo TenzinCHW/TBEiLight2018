@@ -39,7 +39,7 @@ void read_and_flush(uint8_t* buf) {
   radio.flush_rx();
 }
 
-void broadcast(uint8_t addr, byte* msg) {
+void broadcast(uint8_t addr, byte* msg, uint8_t sz) {
   Serial.print(F("Sending this: "));
   print_buffer(msg, PACKET_SZ);
   radio.stopListening();
@@ -48,7 +48,7 @@ void broadcast(uint8_t addr, byte* msg) {
     case 1 : radio.openWritingPipe(ADDR1);
     default: radio.openWritingPipe(ADDR0);
   }
-  radio.startWrite(msg, PACKET_SZ, true);
+  radio.startWrite(msg, sz, true);
   radio.txStandBy();
   radio.startListening();
 }

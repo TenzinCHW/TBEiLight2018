@@ -12,7 +12,7 @@ void req_indiv_setup() {
     for (uint8_t num_try = 0; num_try < RETRY_TIMES; num_try++) {
       make_indiv_req(state.msg_buf, state.ID);
       Serial.println(F("r"));
-      broadcast(1, state.msg_buf);
+      broadcast(1, state.msg_buf, INDIV_REQ_SZ);
       long wait = millis();
       while (millis() - wait < WAIT_FOR_REPLY) read_and_handle();
       if (state.indiv_var_set) break;
@@ -26,7 +26,7 @@ void req_global_setup() {
     Serial.println(F("R"));
     make_glob_req(state.msg_buf);
     for (int num_try = 0; num_try < RETRY_TIMES; num_try++) {
-      broadcast(1, state.msg_buf);
+      broadcast(1, state.msg_buf, GLOBAL_REQ_SZ);
       long wait = millis();
       while (millis() - wait < WAIT_FOR_REPLY) read_and_handle();
       if (state.globals_set) break;
@@ -75,7 +75,10 @@ void power_down() { // powers down for a few seconds
   Serial.println(F("S"));
   //  LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
   //                SPI_OFF, USART0_OFF, TWI_OFF);
+  radio_off();  // turn off radio
   LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); // Guaranteed to lower power consumption
+  radio_on();
+  delay(5);   // wait for radio to fully turn on;
 }
 
 void read_and_handle() {
@@ -118,12 +121,12 @@ void forward(uint8_t msg_type) {
   if (state.is_relay && to_be_relayed(state.msg_buf)) {
     set_relay_bit(state.msg_buf);
     switch (msg_type) {  // check what type of msg - info or hello or drum hit send on ADDR0, req or ack send on ADDR1
-      case SETUP_REQ_MSG : broadcast(1, state.msg_buf); break;
-      case SETUP_ACK : broadcast(1, state.msg_buf); break;
-      case DRUM_HIT_MSG : broadcast(0, state.msg_buf); break;
-      case SETUP_MSG : broadcast(0, state.msg_buf); break;
-      case HELLO_MSG : broadcast(0, state.msg_buf); break;
-      default : broadcast(0, state.msg_buf); break;
+      case SETUP_REQ_MSG : broadcast(1, state.msg_buf, INDIV_REQ_SZ); break;  // Send larger of two request packet sizes (indiv)
+      case SETUP_ACK : broadcast(1, state.msg_buf, ACK_SZ); break;
+      case DRUM_HIT_MSG : broadcast(0, state.msg_buf, DRUM_HIT_SZ); break;
+      case SETUP_MSG : broadcast(0, state.msg_buf, PACKET_SZ); break; // Global setup msg is larger
+    case HELLO_MSG : broadcast(0, state.msg_buf, HELLO_SZ); break;
+      default : broadcast(0, state.msg_buf, PACKET_SZ); break;  // Just send everything if all else fails
     }
   }
 }
@@ -142,7 +145,7 @@ void indiv_setup() {
   }
   make_ack(state.msg_buf, state.ID);
   for (int i = 0; i < RETRY_TIMES; i++) {
-    broadcast(1, state.msg_buf);
+    broadcast(1, state.msg_buf, ACK_SZ);
   }
 
   Serial.println(F("s"));

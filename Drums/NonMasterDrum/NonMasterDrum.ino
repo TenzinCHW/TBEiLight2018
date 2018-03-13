@@ -49,7 +49,7 @@ CRGB leds[NUM_LED];
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
   for (uint8_t i = 0; i < NUM_RETRY; i++) {
-    broadcast(0, msg_buf);
+    broadcast(0, msg_buf, DRUM_HIT_SZ);
   }
 }
 
@@ -104,5 +104,5 @@ void loop() {
 void send_hello() {
   Serial.println(F("Hello there"));
   make_hello(msg_buf);
-  broadcast(0, msg_buf);
+  broadcast(0, msg_buf, HELLO_SZ);
 }
