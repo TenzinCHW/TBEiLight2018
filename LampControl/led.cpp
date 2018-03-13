@@ -53,6 +53,7 @@ void set_rgb() {
 
 void reset_lights() {
   for (uint8_t i = 0; i < NUM_LED; i++) lights[i].setRGB(0, 0, 0);
+  FastLED.show();
 }
 
 float absolute(float num) {
