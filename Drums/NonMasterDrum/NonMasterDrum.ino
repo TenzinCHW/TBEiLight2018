@@ -63,10 +63,10 @@ void read_value() {
     cor_sum += input.get_val(j) * filter[j];
   }
   if (cor_sum > THRESHOLD && millis() - time_since_last_hit > HIT_MIN_TIME) {
-//    Serial.println(F("Sending"));
+    //    Serial.println(F("Sending"));
     if (cor_sum > 400) cor_sum = 100;
     else cor_sum = float(cor_sum) / 10;
-//    Serial.println(cor_sum);
+    //    Serial.println(cor_sum);
     send_drum_hit(hit_counter, cor_sum);
     hit_counter++;
     time_since_last_hit = millis();
@@ -85,15 +85,15 @@ void setup() {
   // SET LED BRIGHTNESS AND COLOUR
   FastLED.addLeds<UCS1903, 2>(leds, NUM_LED);
   for (int i = 0; i < NUM_LED; i++) {
-    leds[i].setRGB(45, 45, 45);
+    leds[i].setRGB(20, 20, 20);
   }
   FastLED.show();
   // END OF LED
-  
-  while (millis() - wake_everyone_up < 10000) {
-    send_hello();
-    delay(10);
-  }
+
+  //  while (millis() - wake_everyone_up < 10000) {
+  //    send_hello();
+  //    delay(10);
+  //  }
 }
 
 void loop() {
