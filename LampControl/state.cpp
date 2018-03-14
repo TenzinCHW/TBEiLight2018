@@ -17,7 +17,7 @@ void req_indiv_setup() {
       while (millis() - wait < WAIT_FOR_REPLY) read_and_handle();
       if (state.indiv_var_set) break;
     }
-    if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
+    if (!state.indiv_var_set) delay(10000);//power_down(); // Still haven't set up individual configurations after checking, go back to sleep
   }
 }
 
@@ -44,7 +44,7 @@ void main_loop() {
   set_rgb();
   if (millis() - state.last_hello > 30000) {
     reset_vars();
-    power_down();
+//    power_down();
   }
 }
 
