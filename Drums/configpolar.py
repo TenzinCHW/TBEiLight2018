@@ -1,6 +1,6 @@
 import math
 
-Drums = {'D2':(684, 0), 'D3':(483, 150), 'D4':(636, 220)}
+Drums = {'D1':(0,0), 'D2':(684, 0), 'D3':(483, 150), 'D4':(636, 220)}
 
 D1 = {'1':(129, 230), '2':(129, 335), '3':(133, 75), '4':(133, 145), '5':(180,15), '6':(180, 32), '7':(180, 100), '8':(180, 125), '9':(180, 190), '10':(180, 220), '11':(210, 250), '12':(210, 270), '13':(180, 275), '14':(210, 290), '15':(180, 315), '16':(210, 320), '17':(210, 355), '18':(210, 50), '19':(230, 65), '20':(230, 90), '21':(227, 110), '22':(225, 135), '23':(230, 155), '24':(220, 160), '25':(225, 182), '26':(212, 207), '27':(261, 12), '28':(261, 30), '29':(272, 42), '30':(262, 95), '31':(263, 110), '32':(263, 117), '33':(260, 135), '34':(275, 168), '35':(310, 205), '36':(262, 220), '37':(262, 235), '38':(265, 250), '39':(263, 275), '40':(308, 280), '41':(261, 295), '42':(262, 315), '43':(313, 218), '44':(313, 245), '45':(309, 345)}
 
@@ -17,7 +17,9 @@ def polar_to_cart(rad, ang):
     y = rad/10 * math.sin(math.radians(ang))
     return x, y
 
-def build_loc_dict(current_dict, loc_in_polar, offset):
+def build_loc_dict(current_dict, loc_in_polar, drums, drum_name):
+    offset = polar_to_cart(*drums[drum_name])
+    current_dict[drum_name] = int(offset[0]), int(offset[1])
     for k, v in loc_in_polar.items():
         assert(k not in current_dict.keys())
         x, y = polar_to_cart(v[0], v[1])
@@ -35,15 +37,18 @@ def normalise(loc_dict):
 
 if __name__ == '__main__':
     current = {}
-    current = build_loc_dict(current, D1, (0,0))
-    r, a = Drums['D2']
-    offset = polar_to_cart(r, a)
-    current = build_loc_dict(current, D2, offset)
-    r, a = Drums['D3']
-    offset = polar_to_cart(r, a)
-    current = build_loc_dict(current, D3, offset)
-    r, a = Drums['D4']
-    offset = polar_to_cart(r, a)
-    current = build_loc_dict(current, D4, offset)
+    current = build_loc_dict(current, D1, Drums, 'D1')
+    current = build_loc_dict(current, D2, Drums, 'D2')
+    current = build_loc_dict(current, D3, Drums, 'D3')
+    current = build_loc_dict(current, D4, Drums, 'D4')
+    #r, a = Drums['D2']
+    #offset = polar_to_cart(r, a)
+    #current = build_loc_dict(current, D2, offset)
+    #r, a = Drums['D3']
+    #offset = polar_to_cart(r, a)
+    #current = build_loc_dict(current, D3, offset)
+    #r, a = Drums['D4']
+    #offset = polar_to_cart(r, a)
+    #current = build_loc_dict(current, D4, offset)
     current = normalise(current)
     print(current)
