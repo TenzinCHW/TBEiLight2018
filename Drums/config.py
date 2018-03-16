@@ -15,6 +15,15 @@ period = 255
 expiry = 50
 
 if __name__ == '__main__':
-    for i in range(99, 120):
-        print(i)
-        print(lamps[str(i)])
+    # for generating C array
+    meow = [lamps[str(i)] for i in range(120)]
+    meow = str(meow)
+    meow = meow.replace('(', '{')
+    meow = meow.replace(')', '}')
+    meow = meow.replace('[', '{')
+    meow = meow.replace(']', '}')
+    print(meow)
+
+    #for i in range(99, 120):
+    #    print(i)
+    #    print(lamps[str(i)])
