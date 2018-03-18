@@ -41,6 +41,7 @@
 #define DRUM_ID_BYTE 1
 #define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
+#define DRUM_HIT_SZ 6
 
 uint8_t get_msg_type(byte* msg);
 bool is_global(byte* msg);

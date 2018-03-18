@@ -92,7 +92,7 @@ void handle_lamp_in() {
     Serial.print("a$");
     Serial.println(id);
   }
-  broadcast(0, radioOutput);
+  broadcast(0, radioOutput, PACKET_SZ);
   clear_header(radioInput);
 }
 
@@ -136,5 +136,5 @@ void send_dummy_hit() {
 
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
-  broadcast(0, msg_buf);
+  broadcast(0, msg_buf, DRUM_HIT_SZ);
 }
