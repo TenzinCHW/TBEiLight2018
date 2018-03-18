@@ -29,9 +29,9 @@ byte msg_buf[PACKET_SZ];
 void setup() {
   startup_nRF();
   Serial.begin(115200);
-  ID = EEPROM.read(0) << 8 | EEPROM.read(1);
-  Timer1.initialize(5000000);
-  Timer1.attachInterrupt(send_dummy_hit);
+  //ID = EEPROM.read(0) << 8 | EEPROM.read(1);
+  //Timer1.initialize(5000000);
+  //Timer1.attachInterrupt(send_dummy_hit);
 
   // ======= test =======
   //  char in[] = "i$20$256,257";
@@ -127,6 +127,7 @@ void reset_serialInput() {
   }
 }
 
+// FOR TESTING ONLY DON'T CALL THIS IN DEPLOYMENT
 void send_dummy_hit() {
   Serial.println(F("Sending dummy"));
   send_drum_hit(hit_counter, 100);

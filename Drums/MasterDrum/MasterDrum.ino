@@ -2,6 +2,7 @@
 #include <TimerOne.h>
 #include "messaging.h"
 #include "comms.h"
+#include "config.h"
 
 #define SERIAL_SZ 100
 #define PACKET_SZ 32
@@ -53,6 +54,7 @@ uint16_t j;
 uint16_t cor_sum;
 uint16_t hit_counter;
 byte msg_buf[PACKET_SZ];
+bool lock = false;
 
 void read_value() {
   input.push(analogRead(A5));
@@ -97,106 +99,41 @@ void parse_input() {
   // handle input from radio
   radioIn = read_if_avail(radioInput);
 
-  // handle input from drum rpi via Serial
-  if (serialIn) {
-    handle_rpi_in();
-  }
+  // handle input from lamps
   if (radioIn) {
     handle_lamp_in();
   }
 }
 
-void handle_rpi_in() {
-  char *tokens[32];
-  char *ptr = NULL;
-  uint8_t tokenIndex = 0;
-
-  Serial.print(F("received: "));
-  /* get the first token */
-  ptr = strtok(serialInput, "$:,");
-  while (ptr != NULL) {
-    tokens[tokenIndex] = ptr;
-    Serial.print(tokens[tokenIndex]);
-    tokenIndex++;
-    ptr = strtok(NULL, "$:,");
-  }
-
-  // start dealing with the scenarios from rpi: global/non-global SI
-  if ( tokens[0][0] == 'I' ) {
-    Serial.println(F("Sending global SI"));
-
+void handle_lamp_in() {
+  uint8_t msg_type = get_msg_type(radioInput);
+  if (msg_type == SETUP_REQ_MSG && is_global(radioInput)) {
+    //handle global SR
+    Serial.println(F("Sending global config"));
     set_setup(radioOutput, SETUP_MSG);
     set_global(radioOutput);
-    set_address(radioOutput, atoi(tokens[1]));
-    tokenIndex = 1;
-
     for (int i = 0; i < NO_OF_DRUMS; i++) {
-      int x_loc = tokenIndex + (i * NO_OF_LOC);
-      int y_loc = x_loc + 1;
-      set_drum_loc(radioOutput, i, atoi(tokens[x_loc]),
-                   atoi(tokens[y_loc]));
-      int r_loc = tokenIndex + (NO_OF_DRUMS * NO_OF_LOC) + (i * NO_OF_RGB);
-      int g_loc = r_loc + 1;
-      int b_loc = r_loc + 2;
-      set_drum_colour(radioOutput, i, atoi(tokens[r_loc]),
-                      atoi(tokens[g_loc]),
-                      atoi(tokens[b_loc]));
+      int x_loc = drum_loc[i][0];
+      int y_loc = drum_loc[i][1];
+      set_drum_loc(radioOutput, i, x_loc, y_loc);
+      uint8_t r = drum_colours[i][0];
+      uint8_t g = drum_colours[i][1];
+      uint8_t b = drum_colours[i][2];
+      set_drum_colour(radioOutput, i, r, g, b);
     }
-    tokenIndex = tokenIndex + ((2 + 3) * NO_OF_DRUMS);
-    set_period(radioOutput, atoi(tokens[tokenIndex]));
-    set_wavelength(radioOutput, atoi(tokens[tokenIndex + 1]));
-    set_expiry(radioOutput, atoi(tokens[tokenIndex + 2]));
+    set_period(radioOutput, period);
+    set_wavelength(radioOutput, wl);
+    set_expiry(radioOutput, expiry);
   }
-
-
-  else if (tokens[0][0] == 'i') {
-
-    Serial.println(F("Sending non-global SI"));
-
-    set_setup(radioOutput, SETUP_MSG);
-    tokenIndex = 1;
-    set_individual_setup(radioOutput, atoi(tokens[tokenIndex]),
-                         atoi(tokens[tokenIndex + 1]),
-                         atoi(tokens[tokenIndex + 2])
-                        );
-  }
-  else {
-    Serial.println("error");
-  }
-  // send to lamps
-  broadcast(0, radioOutput);
-  serialIn = false;
-  reset_serialInput();
-  Serial.println(F("Done"));
-
-  // ====== test ======
-  //  Serial.write((uint8_t*)radioOutput, sizeof(radioOutput));
-  //  for (int i = 0; i < sizeof(radioOutput) / sizeof(radioOutput[0]); i++) {
-  //    if (i) {
-  //      Serial.write(',');
-  //    }
-  //    Serial.print(radioOutput[i],DEC);
-  //  }
-  //
-  //  Serial.write('\n');
-  //  Serial.write("finished!");
-  //  serialIn = false;
-  // ===== end test ======
-}
-
-
-
-
-void handle_lamp_in() {
-  if (radioInput[0] == 8) {
-    //handle global SR
-    Serial.println(F("R"));
-  }
-  else if (radioInput[0] << 5 == 0) {
+  else if (msg_type == SETUP_REQ_MSG && !is_global(radioInput)) {
     //handle non-global SR
-    uint16_t id = radioInput[1] << 8 | radioInput[2];
-    Serial.print("r$");
+    Serial.println(F("Sending local config"));
+    uint16_t id = radioInput[LAMP_ID] << 8 | radioInput[LAMP_ID+1];
     Serial.println(id);
+    if (id > 119) {
+      id = 0;
+    }
+    set_individual_setup(radioOutput, id, lamp_loc[id][0], lamp_loc[id][1]);
   }
   else if (radioInput[0] << 5 == 0b01000000) {
     //handle SA
@@ -204,6 +141,8 @@ void handle_lamp_in() {
     Serial.print("a$");
     Serial.println(id);
   }
+  bool sent = false
+  while (!sent) sent = protected_broadcast(0, radioOutput, PACKET_SZ);
   clear_header(radioInput);
 }
 
@@ -240,5 +179,13 @@ void reset_serialInput() {
 
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
-  broadcast(msg_buf, 0);
+  protected_broadcast(msg_buf, 0, DRUM_HIT_SZ);
+}
+
+bool protected_broadcast(uint8_t addr, byte* msg, uint8_t len) {
+  if (lock) return false;
+  lock = true;
+  broadcast(addr, msg, len);
+  lock = false;
+  return true;
 }
