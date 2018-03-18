@@ -44,7 +44,7 @@ void main_loop() {
   set_rgb();
   if (millis() - state.last_hello > 30000) {
     reset_vars();
-//    power_down();
+    //    power_down();
   }
 }
 
@@ -85,7 +85,7 @@ void read_and_handle() {
   if (read_if_avail(state.msg_buf)) {
     uint8_t msg_type = get_msg_type(state.msg_buf);
     forward(msg_type);
-    //    Serial.print(F("Header: ")); Serial.println(state.msg_buf[0], BIN);
+//    (F("Header: ")); Serial.println(state.msg_buf[0], BIN);
     if (msg_type == SETUP_MSG) {
       if (is_global(state.msg_buf)) {
         global_setup();
@@ -125,7 +125,7 @@ void forward(uint8_t msg_type) {
       case SETUP_ACK : broadcast(1, state.msg_buf, ACK_SZ); break;
       case DRUM_HIT_MSG : broadcast(0, state.msg_buf, DRUM_HIT_SZ); break;
       case SETUP_MSG : broadcast(0, state.msg_buf, PACKET_SZ); break; // Global setup msg is larger
-    case HELLO_MSG : broadcast(0, state.msg_buf, HELLO_SZ); break;
+      case HELLO_MSG : broadcast(0, state.msg_buf, HELLO_SZ); break;
       default : broadcast(0, state.msg_buf, PACKET_SZ); break;  // Just send everything if all else fails
     }
   }
