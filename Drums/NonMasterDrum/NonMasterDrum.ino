@@ -42,14 +42,15 @@ uint16_t cor_sum;
 uint16_t hit_counter;
 byte msg_buf[PACKET_SZ];
 long time_since_last_hit;
+bool lock = false;
 
-#define NUM_LED 21
+#define NUM_LED 5
 CRGB leds[NUM_LED];
 
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
   for (uint8_t i = 0; i < NUM_RETRY; i++) {
-    broadcast(0, msg_buf, DRUM_HIT_SZ);
+    protected_broadcast(0, msg_buf, DRUM_HIT_SZ);
   }
 }
 
@@ -77,7 +78,6 @@ void setup() {
   startup_nRF();
   Serial.begin(115200);
   ID = EEPROM.read(0) << 8 | EEPROM.read(1);
-  MCUSR = 0; // clear prev resets
   Timer1.initialize(20000);
   Timer1.attachInterrupt(read_value);
   long wake_everyone_up = millis();
@@ -104,5 +104,12 @@ void loop() {
 void send_hello() {
   Serial.println(F("Hello there"));
   make_hello(msg_buf);
-  broadcast(0, msg_buf, HELLO_SZ);
+  protected_broadcast(0, msg_buf, HELLO_SZ);
+}
+
+void protected_broadcast(uint8_t addr, byte* msg, uint8_t len) {
+  while (lock) ;
+  lock = true;
+  broadcast(addr, msg, len);
+  lock = false;
 }
