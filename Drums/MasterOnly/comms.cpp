@@ -52,6 +52,9 @@ void broadcast(uint8_t addr, byte* msg) {
 }
 
 void print_buffer(uint8_t* buf, uint8_t len) {
-  for (int i = 0; i < len; i++) Serial.print(buf[i]);
+  for (int i = 0; i < len; i++) {
+    Serial.print(buf[i]);
+    Serial.print(F(" "));
+  }
   Serial.println();
 }

@@ -42,6 +42,9 @@
 #define DRUM_HIT_INTENSITY 2
 #define DRUM_COUNTER_BYTE 4
 
+uint8_t get_msg_type(byte* msg);
+bool is_global(byte* msg);
+
 void make_drum_hit(byte* msg, uint8_t id, uint16_t counter, uint8_t intensity);
 void clear_header(byte* msg);
 void set_setup(byte* msg, uint8_t msg_type);
