@@ -1,5 +1,6 @@
 #include "comms.h"
 #include "printf.h"
+#include <util/atomic.h>
 
 RF24 radio(10, 9);
 
@@ -40,17 +41,17 @@ void read_and_flush(uint8_t* buf) {
 }
 
 void broadcast(uint8_t addr, byte* msg, uint8_t sz) {
-  Serial.print(F("Sending this: "));
-  print_buffer(msg, PACKET_SZ);
-  radio.stopListening();
-  switch (addr) {
-    case 0 : radio.openWritingPipe(ADDR0);
-    case 1 : radio.openWritingPipe(ADDR1);
-    default: radio.openWritingPipe(ADDR0);
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    radio.stopListening();
+    switch (addr) {
+      case 0 : radio.openWritingPipe(ADDR0);
+      case 1 : radio.openWritingPipe(ADDR1);
+      default: radio.openWritingPipe(ADDR0);
+    }
+    radio.startWrite(msg, sz, true);
+    radio.txStandBy();
+    radio.startListening();
   }
-  radio.startWrite(msg, sz, true);
-  radio.txStandBy();
-  radio.startListening();
 }
 
 void print_buffer(uint8_t* buf, uint8_t len) {

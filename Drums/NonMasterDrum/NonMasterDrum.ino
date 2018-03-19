@@ -20,8 +20,7 @@ struct InputQueue {
       if (head == FILTER_SIZE - 1) {
         head = 0;
       } else {
-        //        head++;
-        head = head + 1;
+        head++;
       }
     } else {
       input[counter] = reading;
@@ -49,9 +48,7 @@ CRGB leds[NUM_LED];
 
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
-  for (uint8_t i = 0; i < NUM_RETRY; i++) {
-    protected_broadcast(0, msg_buf, DRUM_HIT_SZ);
-  }
+  broadcast(0, msg_buf, DRUM_HIT_SZ);
 }
 
 void read_value() {
@@ -88,12 +85,6 @@ void setup() {
     leds[i].setRGB(20, 20, 20);
   }
   FastLED.show();
-  // END OF LED
-
-  //  while (millis() - wake_everyone_up < 10000) {
-  //    send_hello();
-  //    delay(10);
-  //  }
 }
 
 void loop() {
@@ -104,12 +95,5 @@ void loop() {
 void send_hello() {
   Serial.println(F("Hello there"));
   make_hello(msg_buf);
-  protected_broadcast(0, msg_buf, HELLO_SZ);
-}
-
-void protected_broadcast(uint8_t addr, byte* msg, uint8_t len) {
-  while (lock) ;
-  lock = true;
-  broadcast(addr, msg, len);
-  lock = false;
+  broadcast(0, msg_buf, HELLO_SZ);
 }

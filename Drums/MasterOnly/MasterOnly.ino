@@ -29,17 +29,9 @@ byte msg_buf[PACKET_SZ];
 void setup() {
   startup_nRF();
   Serial.begin(115200);
-  //ID = EEPROM.read(0) << 8 | EEPROM.read(1);
-  //Timer1.initialize(5000000);
-  //Timer1.attachInterrupt(send_dummy_hit);
-
-  // ======= test =======
-  //  char in[] = "i$20$256,257";
-  //  for (int i = 0; i < (int)(sizeof(in) / sizeof(char)); i++) {
-  //    serialInput[i] = in[i];
-  //  }
-  //  serialIn = true;
-  // ====== end test ======
+//ID = EEPROM.read(0) << 8 | EEPROM.read(1);
+//  Timer1.initialize(1000000);
+//  Timer1.attachInterrupt(send_dummy_hit);
 }
 
 void loop() {
@@ -51,7 +43,6 @@ void parse_input() {
   radioIn = read_if_avail(radioInput);
   // handle input from lamp
   if (radioIn) {
-//    print_buffer(radioInput, PACKET_SZ);/
     handle_lamp_in();
   }
 }
@@ -85,12 +76,6 @@ void handle_lamp_in() {
       id = 0;
     }
     set_individual_setup(radioOutput, id, lamp_loc[id][0], lamp_loc[id][1]);
-  }
-  else if (radioInput[0] << 5 == 0b01000000) {
-    //handle SA
-    uint16_t id = radioInput[1] << 8 | radioInput[2];
-    Serial.print("a$");
-    Serial.println(id);
   }
   broadcast(0, radioOutput, PACKET_SZ);
   clear_header(radioInput);

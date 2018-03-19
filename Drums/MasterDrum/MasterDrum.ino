@@ -8,19 +8,11 @@
 #define PACKET_SZ 32
 #define FILTER_SIZE 5
 #define THRESHOLD 60
-
-const int NO_OF_DRUMS = 4;
-const int NO_OF_LOC = 2;
-const int NO_OF_RGB = 3;
+#define NO_OF_DRUMS 4;
 
 uint8_t radioInput[PACKET_SZ];
-char serialInput[SERIAL_SZ];
 byte radioOutput[PACKET_SZ];
-bool serialIn = false;
 bool radioIn = false;
-// global SI: "I$256,257:258,259:260,261:262,263$100,200,100:20,20,20:30,30,30:0,0,255$90$90$255"
-// non-global SI: "i$20$256,257"
-int serialCounter = 0;
 
 struct InputQueue {
   int input[FILTER_SIZE];
@@ -54,7 +46,6 @@ uint16_t j;
 uint16_t cor_sum;
 uint16_t hit_counter;
 byte msg_buf[PACKET_SZ];
-bool lock = false;
 
 void read_value() {
   input.push(analogRead(A5));
@@ -65,7 +56,7 @@ void read_value() {
     // multiply filter[i] with the i-th element of input
     cor_sum += input.get_val(j) * filter[j];
   }
-  Serial.println(cor_sum);
+  //Serial.println(cor_sum);
   if (cor_sum > THRESHOLD) {
     Serial.println(F("Sending"));
     if (cor_sum > 400) cor_sum = 100;
@@ -81,14 +72,6 @@ void setup() {
   ID = EEPROM.read(0) << 8 | EEPROM.read(1);
   Timer1.initialize(20000);
   Timer1.attachInterrupt(read_value);
-  
-  // ======= test =======
-  //  char in[] = "i$20$256,257";
-  //  for (int i = 0; i < (int)(sizeof(in) / sizeof(char)); i++) {
-  //    serialInput[i] = in[i];
-  //  }
-  //  serialIn = true;
-  // ====== end test ======
 }
 
 void loop() {
@@ -146,46 +129,7 @@ void handle_lamp_in() {
   clear_header(radioInput);
 }
 
-/*
-  SerialEvent happens asynchronously whenever a new data comes in the
-  hardware serial RX.  This routine is run between each
-  time loop() runs, so using delay inside loop can delay
-  response.  Multiple bytes of data may be available.
-*/
-void serialEvent() {
-  Serial.println(F("serialevent"));
-  char inChar;
-  while (Serial.available() && !serialIn) {
-    // get the new byte:
-    inChar = (char)Serial.read();
-    // add it to the serialInput buffer:
-    serialInput[serialCounter] = inChar;
-    serialCounter++;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inChar == '\n') {
-      Serial.println(F("ohno"));
-      serialCounter = 0;
-      serialIn = true;
-    }
-  }
-}
-
-void reset_serialInput() {
-  for (int i = 0; i < SERIAL_SZ; i++) {
-    serialInput[i] = 0;
-  }
-}
-
 void send_drum_hit(uint16_t counter, uint8_t intensity) {
   make_drum_hit(msg_buf, ID, counter, intensity);
   protected_broadcast(msg_buf, 0, DRUM_HIT_SZ);
-}
-
-bool protected_broadcast(uint8_t addr, byte* msg, uint8_t len) {
-  if (lock) return false;
-  lock = true;
-  broadcast(addr, msg, len);
-  lock = false;
-  return true;
 }
