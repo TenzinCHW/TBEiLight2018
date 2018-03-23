@@ -1,6 +1,7 @@
 #include "state.h"
 
 State state;
+//long drum_hit_timer;
 
 void init_ID() {
   state.ID = EEPROM.read(0) << 8 | EEPROM.read(1);
@@ -107,6 +108,7 @@ void read_drum_hit() {
       case DRUM_HIT_MSG :
         Serial.println(F("H"));
         state.last_hello = millis();
+//        drum_hit_timer = millis();
         add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
         break;
       case HELLO_MSG :

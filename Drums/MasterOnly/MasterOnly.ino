@@ -29,8 +29,9 @@ byte msg_buf[PACKET_SZ];
 void setup() {
   startup_nRF();
   Serial.begin(115200);
-//ID = EEPROM.read(0) << 8 | EEPROM.read(1);
-//  Timer1.initialize(1000000);
+//  ID = EEPROM.read(0) << 8 | EEPROM.read(1);
+//  Serial.println(ID);
+//  Timer1.initialize(5000000);
 //  Timer1.attachInterrupt(send_dummy_hit);
 }
 
@@ -70,7 +71,7 @@ void handle_lamp_in() {
   else if (msg_type == SETUP_REQ_MSG && !is_global(radioInput)) {
     //handle non-global SR
     Serial.println(F("Sending local config"));
-    uint16_t id = radioInput[LAMP_ID] << 8 | radioInput[LAMP_ID+1];
+    uint16_t id = radioInput[LAMP_ID] << 8 | radioInput[LAMP_ID + 1];
     Serial.println(id);
     if (id > 119) {
       id = 0;
