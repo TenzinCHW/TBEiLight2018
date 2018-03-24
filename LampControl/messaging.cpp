@@ -144,7 +144,7 @@ bool addressed_to_id(byte* msg, uint16_t id) {
    input msg: pointer to state message buffer
    return: x-coordinate of lamp in metres
 */
-float get_lamp_x(char* msg) {
+float get_lamp_x(byte* msg) {
   return (msg[LAMP_X1] << 8 | msg[LAMP_X2]) / 10.0;
 }
 
@@ -152,7 +152,7 @@ float get_lamp_x(char* msg) {
    input msg: pointer to state message buffer
    return: y-coordinate of lamp in metres
 */
-float get_lamp_y(char* msg) {
+float get_lamp_y(byte* msg) {
   return (msg[LAMP_Y1] << 8 | msg[LAMP_Y2]) / 10.0;
 }
 
