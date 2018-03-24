@@ -30,12 +30,12 @@ void set_rgb() {
   real_period = state.period/1000.0;
   for (int i = 0; i < state.hits.counter; i++) {
     src_intensity = state.hits.hits[state.hits.head + i].intensity;
-    delta_t = millis() - state.hits.hits[state.hits.head + i].incoming_time;
+    delta_t = (millis() - state.hits.hits[state.hits.head + i].incoming_time)/1000.0;
     temp_drum_id = state.hits.hits[state.hits.head + i].drum_id;
     dist = state.drums[temp_drum_id].dist_from_lamp;
-    wave_travelled = state.wavelength/real_period * delta_t/1000.0;
+    wave_travelled = state.wavelength/real_period * delta_t;
     dist_from_wave = absolute(dist - wave_travelled);
-    base_intensity = 0.000005 *  src_intensity * pow(2, -dist_from_wave/1000 * pow(delta_t/1000, 2)) * (wave_travelled - dist_from_wave);
+    base_intensity = 0.000005 *  src_intensity * pow(2, -dist_from_wave/1000 * pow(delta_t, 2)) * (wave_travelled - dist_from_wave);
 //    Serial.println(base_intensity);
     for (uint8_t j = 0; j < 3; j++) {
       total_intensity[j] += base_intensity * state.drums[temp_drum_id].colour[j];
