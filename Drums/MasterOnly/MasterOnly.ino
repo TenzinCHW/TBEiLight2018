@@ -76,7 +76,7 @@ void handle_lamp_in() {
     if (id > 119) {
       id = 0;
     }
-    set_individual_setup(radioOutput, id, lamp_loc[id][0], lamp_loc[id][1]);
+    set_individual_setup(radioOutput, id, lamp_loc[id][0]*10, lamp_loc[id][1]*10);
   }
   broadcast(0, radioOutput, PACKET_SZ);
   clear_header(radioInput);
