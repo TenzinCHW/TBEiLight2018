@@ -1,5 +1,5 @@
 uint16_t drum_loc[][2] = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
-uint8_t drum_colours[][3] = {{30, 30, 30}, {60, 0, 0}, {0, 60, 0}, {0, 0, 60}};
+uint8_t drum_colours[][3] = {{60, 0, 0}, {30, 30, 30}, {0, 60, 0}, {0, 0, 60}};
 uint8_t period = 10;
 uint8_t wl = 10;
 uint8_t expiry = 50;
