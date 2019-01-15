@@ -35,8 +35,8 @@ void set_rgb() {
     dist = state.drums[temp_drum_id].dist_from_lamp;
     wave_travelled = state.wavelength/real_period * delta_t;
     dist_from_wave = absolute(dist - wave_travelled);
-    base_intensity = 0.000005 *  src_intensity * pow(2, -dist_from_wave/1000 * pow(delta_t, 2)) * (wave_travelled - dist_from_wave);
-//    Serial.println(base_intensity);
+    base_intensity = 0.005 * src_intensity * pow(2, -dist_from_wave/10 * pow(delta_t, 2)) * abs(wave_travelled - dist_from_wave);
+    Serial.println(base_intensity);
     for (uint8_t j = 0; j < 3; j++) {
       total_intensity[j] += base_intensity * state.drums[temp_drum_id].colour[j];
     }

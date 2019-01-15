@@ -52,7 +52,7 @@ void send_drum_hit(uint16_t counter, uint8_t intensity) {
 }
 
 void read_value() {
-  input.push(analogRead(A5));
+  input.push(analogRead(A5)*3);
   cor_sum = 0;
 
   //    corrrelation part
@@ -64,7 +64,7 @@ void read_value() {
     //    Serial.println(F("Sending"));
     if (cor_sum > 400) cor_sum = 100;
     else cor_sum = float(cor_sum) / 10;
-    //    Serial.println(cor_sum);
+        Serial.println(cor_sum);
     send_drum_hit(hit_counter, cor_sum);
     hit_counter++;
     time_since_last_hit = millis();

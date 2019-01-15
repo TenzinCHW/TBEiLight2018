@@ -110,6 +110,7 @@ void read_drum_hit() {
         state.last_hello = millis();
 //        drum_hit_timer = millis();
         add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
+        Serial.println(get_hit_intensity(state.msg_buf));
         break;
       case HELLO_MSG :
         state.last_hello = millis();
