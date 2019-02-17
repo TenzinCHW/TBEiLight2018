@@ -1,7 +1,6 @@
 #include "state.h"
 
 State state;
-//long drum_hit_timer;
 
 void init_ID() {
   state.ID = EEPROM.read(0) << 8 | EEPROM.read(1);
@@ -18,7 +17,7 @@ void req_indiv_setup() {
       while (millis() - wait < WAIT_FOR_REPLY) read_and_handle();
       if (state.indiv_var_set) break;
     }
-    if (!state.indiv_var_set) delay(10000);//power_down(); // Still haven't set up individual configurations after checking, go back to sleep
+    if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
   }
 }
 
@@ -33,9 +32,7 @@ void req_global_setup() {
       if (state.globals_set) break;
     }
     state.time_since_last_glob_req = millis();
-    //    if (!state.globals_set) {
-    //      power_down();
-    //    }
+    if (!state.globals_set) power_down();
   }
 }
 
@@ -45,7 +42,7 @@ void main_loop() {
   set_rgb();
   if (millis() - state.last_hello > 30000) {
     reset_vars();
-    //    power_down();
+    power_down();
   }
 }
 
@@ -72,11 +69,11 @@ void reset_vars() { // resets all variables that need to be reset
   // Do not reset ID and do not stop listening on radio
 }
 
-void power_down() { // powers down for a few seconds
+void power_down() {
   Serial.println(F("S"));
   //  LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
   //                SPI_OFF, USART0_OFF, TWI_OFF);
-  radio_off();  // turn off radio
+  radio_off();
   LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); // Guaranteed to lower power consumption
   radio_on();
   delay(5);   // wait for radio to fully turn on;
