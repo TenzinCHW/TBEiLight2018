@@ -35,21 +35,21 @@ void set_rgb() {
     dist = state.drums[temp_drum_id].dist_from_lamp;
     wave_travelled = state.wavelength/real_period * delta_t;
     dist_from_wave = absolute(dist - wave_travelled);
-    base_intensity = 0.005 * src_intensity * pow(2, -dist_from_wave/10 * pow(delta_t, 2)) * abs(wave_travelled - dist_from_wave);
-    Serial.println(base_intensity);
+    base_intensity = 0.00004 * ((src_intensity / (5*delta_t - 0.07*state.drums[i].dist_from_lamp )) - (2500)) ;  
+    
     for (uint8_t j = 0; j < 3; j++) {
-      total_intensity[j] += base_intensity * state.drums[temp_drum_id].colour[j];
+      total_intensity[j] += base_intensity* state.drums[temp_drum_id].colour[j];
     }
   }
 
 //  if (total_intensity[1] - old_intensity > 20) Serial.println(millis() - drum_hit_timer);
   for (int i = 0; i < 3; i++) {
-    //    Serial.print(total_intensity[i]); Serial.print(F(" "));
     if (total_intensity[i] > 60) total_intensity[i] = 60;
     if (total_intensity[i] < 0) total_intensity[i] = 0;
-  }
 
-//    Serial.println(total_intensity[1]);
+  }
+  Serial.println(total_intensity[0]);
+
 //  old_intensity = total_intensity[1];
 
   for (int i = 0; i < NUM_LED; i++) {
@@ -68,4 +68,3 @@ float absolute(float num) {
   if (num < 0) return -num;
   return num;
 }
-
