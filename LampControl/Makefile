@@ -3,7 +3,7 @@ ARDUINO_QUIET = 1
 # base configuration
 BOARD_TAG    = nano#328
 BOARD_SUB    = atmega328
-ARDUINO_LIBS = FastLED LowPower SPI TimerOne EEPROM RF24
+ARDUINO_LIBS = FastLED LowPower SPI TimerOne EEPROM RF24 DigitalIO
 
 # defaults
 PORT   = 0

@@ -1,7 +1,7 @@
 #include "comms.h"
 #include "printf.h"
 
-RF24 radio(10, 9);
+RF24 radio(7, 8);
 
 const unsigned char ADDR1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
 const unsigned char ADDR0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
@@ -22,11 +22,13 @@ void startup_nRF() {
 }
 
 void radio_on() {
-  radio.powerUp();
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
 }
 
 void radio_off() {
-  radio.powerDown();
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
 }
 
 bool read_if_avail(uint8_t* buf) {
