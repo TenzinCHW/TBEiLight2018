@@ -18,7 +18,9 @@ We transferred all the functionality to the code in Drums/MasterDrum.
 We also need to change the `RF24_config.h` file.
 1. Uncomment the line `#define SOFTSPI`
 2. Find the lines defining the following variables and define them as follows:
-```#define SOFT_SPI_MOSI_PIN 10
-   #define SOFT_SPI_MISO_PIN 11
-   #define SOFT_SPI_SCK_PIN 12```
+```
+#define SOFT_SPI_MOSI_PIN 10
+#define SOFT_SPI_MISO_PIN 11
+#define SOFT_SPI_SCK_PIN 12
+```
 
