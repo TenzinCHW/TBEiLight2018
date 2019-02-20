@@ -7,6 +7,7 @@
 #include <DigitalIO.h>
 
 #define PACKET_SZ 32
+#define POWER_PIN 13
 
 void startup_nRF();
 void radio_on();
