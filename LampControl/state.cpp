@@ -17,7 +17,7 @@ void req_indiv_setup() {
       while (millis() - wait < WAIT_FOR_REPLY) read_and_handle();
       if (state.indiv_var_set) break;
     }
-    if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
+//    if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
   }
 }
 
@@ -32,7 +32,6 @@ void req_global_setup() {
       if (state.globals_set) break;
     }
     state.time_since_last_glob_req = millis();
-    if (!state.globals_set) power_down();
   }
 }
 
@@ -40,7 +39,7 @@ void main_loop() {
   // TODO encrypted messages (low priority)
   read_drum_hit();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
   set_rgb();
-  if (millis() - state.last_hello > 30000) {
+  if (millis() - state.last_hello > 10000) {
     reset_vars();
     power_down();
   }
@@ -70,13 +69,13 @@ void reset_vars() { // resets all variables that need to be reset
 }
 
 void power_down() {
-  Serial.println(F("S"));
+  Serial.println(F("Sleep"));
   //  LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
   //                SPI_OFF, USART0_OFF, TWI_OFF);
   radio_off();
-  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); // Guaranteed to lower power consumption
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_ON); // Guaranteed to lower power consumption
   radio_on();
-  delay(5);   // wait for radio to fully turn on;
+  delay(50);   // wait for radio to fully turn on;
 }
 
 void read_and_handle() {

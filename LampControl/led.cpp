@@ -42,15 +42,12 @@ void set_rgb() {
     }
   }
 
-//  if (total_intensity[1] - old_intensity > 20) Serial.println(millis() - drum_hit_timer);
   for (int i = 0; i < 3; i++) {
     if (total_intensity[i] > 60) total_intensity[i] = 60;
     if (total_intensity[i] < 0) total_intensity[i] = 0;
 
   }
-  Serial.println(total_intensity[0]);
-
-//  old_intensity = total_intensity[1];
+//  Serial.println(total_intensity[0]);
 
   for (int i = 0; i < NUM_LED; i++) {
     lights[i].setRGB(total_intensity[0], total_intensity[1], total_intensity[2]);
