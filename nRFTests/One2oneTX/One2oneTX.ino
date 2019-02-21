@@ -1,3 +1,4 @@
+#include <DigitalIO.h>
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -6,7 +7,7 @@
 
 #define PLOAD_WIDTH 32
 
-RF24 radio (10, 9);
+RF24 radio(7, 8);
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
@@ -19,7 +20,8 @@ CRGB leds[4];
 long start; // For timing
 
 void setup() {
-  // Wire.begin();
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
   Serial.begin(115200);
   radio.begin();
   printf_begin();
@@ -102,4 +104,3 @@ void wait_for_reply() {
   Serial.print(F("Total time: "));
   Serial.println(total);
 }
-

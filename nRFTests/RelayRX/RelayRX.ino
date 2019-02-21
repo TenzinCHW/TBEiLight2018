@@ -1,9 +1,10 @@
+#include<DigitalIO.h>
 #include <SPI.h>
 #include <nRF24L01.h>
 #include "printf.h"
 #include <RF24.h>
 
-RF24 radio (9, 10);
+RF24 radio (7, 8);
 
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 
@@ -12,6 +13,8 @@ unsigned char ADDRESS1[5]  = {0xb1, 0x43, 0x88, 0x99, 0x45}; // Define a static 
 unsigned char ADDRESS0[5]  = {0xb0, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
 
 void setup() {
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
   Serial.begin(115200);
   radio.begin();
   printf_begin();
