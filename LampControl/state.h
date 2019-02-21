@@ -36,11 +36,12 @@ struct HitQueue {
   uint16_t counter;
 
   DrumHit pop_hit() {
-    if (this->counter == 0) return;
-    uint16_t ret = this->head;
-    this->head = (ret + 1) % MAX_HITS;
-    this->counter--;
-    return this->hits[ret];
+    if (this->counter != 0) {
+      uint16_t ret = this->head;
+      this->head = (ret + 1) % MAX_HITS;
+      this->counter--;
+      return this->hits[ret];
+    }
   }
 
   void push_hit(DrumHit hit) {
