@@ -6,7 +6,7 @@
 #include "FastLED.h"
 #include "LowPower.h"
 
-RF24 radio (10, 9);
+RF24 radio (7,8);
 
 #define PLOAD_WIDTH  32  // 32 unsigned chars TX payload
 #define DRUM_HIT_MSG 3
@@ -18,6 +18,9 @@ RF24 radio (10, 9);
 #define MAX_BLINK 15
 #define MIN_BLINK 5
 #define MAX_RAND_WAIT 3000
+#define POWER_PIN 13
+#define NUM_LED 4
+#define LED_PIN 3
 
 unsigned char rx_buf[PLOAD_WIDTH] = {0};
 const unsigned char ADDRESS1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
@@ -40,6 +43,8 @@ long stay_awake;
 
 void setup() {
   Serial.begin(115200);
+  pinMode(POWER_PIN, OUTPUT);
+  digitalWrite(POWER_PIN, HIGH);
   radio.begin();
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
@@ -55,7 +60,7 @@ void setup() {
   Timer1.initialize(20000);
   Timer1.attachInterrupt(hit_toggle);
   Serial.println("Receiver");
-  FastLED.addLeds<UCS1903, 2>(leds, 4);
+  FastLED.addLeds<UCS1903, LED_PIN>(leds, NUM_LED);
   setRGB(0, 0, 0);
   randomSeed(analogRead(0));
   delay(1000);
@@ -201,4 +206,3 @@ uint8_t choose_colour() {
   }
   Serial.println(colour_total);
 }
-

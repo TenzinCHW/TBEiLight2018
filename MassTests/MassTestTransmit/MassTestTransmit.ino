@@ -4,8 +4,9 @@
 #include "printf.h"
 
 #define PLOAD_WIDTH 32
+#define POWER_PIN 13
 
-RF24 radio (10, 9);
+RF24 radio (7, 8);
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
@@ -16,6 +17,8 @@ const unsigned char ADDRESS0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 long start; // For timing
 void setup() {
   Serial.begin(115200);
+  pinMode(POWER_PIN, OUTPUT);
+  digitalWrite(POWER_PIN, HIGH);
   radio.begin();
   printf_begin();
   radio.setDataRate(RF24_2MBPS);
