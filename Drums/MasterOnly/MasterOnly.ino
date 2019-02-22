@@ -27,8 +27,8 @@ uint16_t hit_counter;
 byte msg_buf[PACKET_SZ];
 
 void setup() {
-  startup_nRF();
   Serial.begin(115200);
+  startup_nRF();
 //  ID = EEPROM.read(0) << 8 | EEPROM.read(1);
 //  Serial.println(ID);
 //  Timer1.initialize(5000000);
