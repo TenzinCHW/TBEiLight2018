@@ -6,6 +6,8 @@
 #include "FastLED.h"
 
 #define PLOAD_WIDTH 32
+#define NUM_LED 4
+#define LED_PIN 3
 
 RF24 radio(7, 8);
 
@@ -36,7 +38,7 @@ void setup() {
   radio.stopListening();
   radio.printDetails();
   Serial.println("Transmitter");
-  FastLED.addLeds<UCS1903B, 2>(leds, 4);
+  FastLED.addLeds<UCS1903B, LED_PIN>(leds, NUM_LED);
   for (int i = 0; i < 4; i++) {
     leds[i] = CRGB::Black;
   }
@@ -89,7 +91,7 @@ void wait_for_reply() {
   radio.startListening();
   long total = 0;
   long onemsgtime;
-  for (int i = 0; i < 1024; i++) {
+  for (int i = 0; i < 100; i++) {
     start = millis();
     tx_buf[PLOAD_WIDTH - 1] = i;
     while (!radio.available()) {
