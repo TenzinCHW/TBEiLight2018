@@ -9,8 +9,15 @@ const unsigned char ADDR0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 void startup_nRF() {
   radio_on();
-  radio.begin();
   printf_begin();
+  radio.printDetails();
+}
+
+void radio_on() {
+  pinMode(POWER_PIN, OUTPUT);
+  digitalWrite(POWER_PIN, HIGH);
+  delay(1000);
+  radio.begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
   radio.setAutoAck(false);  //  turn off acknowledgements
@@ -20,12 +27,6 @@ void startup_nRF() {
   radio.openReadingPipe(0, ADDR0);
   radio.openReadingPipe(1, ADDR1);
   radio.startListening();
-  radio.printDetails();
-}
-
-void radio_on() {
-  pinMode(POWER_PIN, OUTPUT);
-  digitalWrite(POWER_PIN, HIGH);
 }
 
 void radio_off() {
