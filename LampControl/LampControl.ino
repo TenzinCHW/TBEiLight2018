@@ -27,6 +27,7 @@ void loop() {
   if (!(state.globals_set && state.indiv_var_set)) {
     req_indiv_setup();
     req_global_setup();
+    if (!(state.globals_set && state.indiv_var_set)) power_down();
   } else main_loop();
   delay(50);  // At most update 20 times per second. No one will notice.
 }
