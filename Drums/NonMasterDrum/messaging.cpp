@@ -7,10 +7,8 @@ void make_hello(byte* msg) {
 void make_drum_hit(byte* msg, uint8_t id, uint16_t counter, uint8_t intensity) {  // intensity is a value from 1 to 100
   msg[0] = DRUM_HIT_MSG;
   msg[DRUM_ID_BYTE] = id;
-  msg[DRUM_HIT_INTENSITY] = intensity >> 8;
-  msg[DRUM_HIT_INTENSITY + 1] = intensity;
-  msg[DRUM_COUNTER_BYTE] = counter >> 8;
-  msg[DRUM_COUNTER_BYTE + 1] = counter;
+  msg[DRUM_HIT_INTENSITY] = intensity;// >> 8;
+  msg[DRUM_COUNTER_BYTE] = counter;// >> 8;
 }
 
 // For drum hits //
