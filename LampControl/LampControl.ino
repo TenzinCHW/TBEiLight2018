@@ -8,7 +8,7 @@
 extern State state;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // SETUP ID, COMMS AND LEDS //
   init_ID();
