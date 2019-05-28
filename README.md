@@ -15,7 +15,7 @@ We transferred all the functionality to the code in Drums/MasterDrum.
 - RF24
 
 ## Library edits
-We also need to change the `RF24_config.h` file.
+As there was a mistake in how the PCB (printed circuit board) was designed, we also need to change the `RF24_config.h` file.
 1. Uncomment the line `#define SOFTSPI`
 2. Find the lines defining the following variables and define them as follows:
 ```
@@ -24,3 +24,4 @@ We also need to change the `RF24_config.h` file.
 #define SOFT_SPI_SCK_PIN 12
 ```
 
+If the PCB design is rectified, ignore this library edits section.
