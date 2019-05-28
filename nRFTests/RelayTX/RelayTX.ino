@@ -1,3 +1,4 @@
+#include<DigitalIO.h>
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -7,18 +8,20 @@
 
 byte byte1, byte2, byte3, byte4;
 
-RF24 radio (9, 10);
+RF24 radio (7, 8);
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
 
 unsigned char ADDRESS1[5]  = {0xb1, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
 unsigned char ADDRESS0[5]  = {0xb0, 0x43, 0x88, 0x99, 0x45}; // Define a static TX address
-//just change b1 to b2 or b3 to send to other pip on reciever
+//just change b1 to b2 or b3 to send to other pipe on reciever
 
 long start; // For timing
 
 void setup() {
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
   Serial.begin(115200);
   radio.begin();
   printf_begin();
@@ -86,4 +89,3 @@ void wait_for_reply() {
   Serial.print(F("Total time: "));
   Serial.println(total);
 }
-

@@ -2,14 +2,22 @@
 #include "printf.h"
 #include <util/atomic.h>
 
-RF24 radio(10, 9);
+RF24 radio(7, 8);
 
 const unsigned char ADDR1[5]  = {0xb1, 0x41, 0x29, 0x75, 0x93};
 const unsigned char ADDR0[5]  = {0xb0, 0x41, 0x29, 0x75, 0x93};
 
 void startup_nRF() {
-  radio.begin();
+  radio_on();
   printf_begin();
+  radio.printDetails();
+}
+
+void radio_on() {
+  pinMode(POWER_PIN, OUTPUT);
+  digitalWrite(POWER_PIN, HIGH);
+  delay(1000);
+  radio.begin();
   radio.setDataRate(RF24_2MBPS);
   radio.enableDynamicPayloads();
   radio.setAutoAck(false);  //  turn off acknowledgements
@@ -19,7 +27,11 @@ void startup_nRF() {
   radio.openReadingPipe(0, ADDR0);
   radio.openReadingPipe(1, ADDR1);
   radio.startListening();
-  radio.printDetails();
+}
+
+void radio_off() {
+  pinMode(POWER_PIN, OUTPUT);
+  digitalWrite(POWER_PIN, LOW);
 }
 
 bool read_if_avail(uint8_t* buf) {
@@ -28,7 +40,7 @@ bool read_if_avail(uint8_t* buf) {
       return false;
     }
     read_and_flush(buf);
-    print_buffer(buf, PACKET_SZ);
+    //    print_buffer(buf, PACKET_SZ);
     return true;
   } else {
     return false;
@@ -42,6 +54,8 @@ void read_and_flush(uint8_t* buf) {
 
 void broadcast(uint8_t addr, byte* msg, uint8_t sz) {
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    //  Serial.print(F("Sending this: "));
+    //  print_buffer(msg, PACKET_SZ);
     radio.stopListening();
     switch (addr) {
       case 0 : radio.openWritingPipe(ADDR0);

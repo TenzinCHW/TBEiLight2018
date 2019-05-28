@@ -59,25 +59,24 @@ void read_value() {
     // multiply filter[i] with the i-th element of input
     cor_sum += input.get_val(j) * filter[j];
   }
-  Serial.println(cor_sum);
+//  Serial.println(cor_sum);
   if (cor_sum > THRESHOLD && millis() - time_since_last_hit > HIT_MIN_TIME) {
-    //    Serial.println(F("Sending"));
-    if (cor_sum > 400) cor_sum = 100;
-    else cor_sum = float(cor_sum) / 10;
+        Serial.println(F("Sending"));
+    cor_sum /= 10;
+    if (cor_sum > 100) cor_sum = 100;
     Serial.println(cor_sum);
-    send_drum_hit(hit_counter, cor_sum);
+    send_drum_hit(hit_counter, 100);
     hit_counter++;
     time_since_last_hit = millis();
   }
 }
 
 void setup() {
-  startup_nRF();
   Serial.begin(115200);
+  startup_nRF();
   ID = EEPROM.read(0) << 8 | EEPROM.read(1);
   Timer1.initialize(20000);
   Timer1.attachInterrupt(read_value);
-  long wake_everyone_up = millis();
 
   // SET LED BRIGHTNESS AND COLOUR
   FastLED.addLeds<UCS1903, 2>(leds, NUM_LED);
@@ -88,8 +87,10 @@ void setup() {
 }
 
 void loop() {
-  delay(5000);
-  send_hello();
+  if (millis() - time_since_last_hit > 5000) {
+    send_hello();
+    time_since_last_hit = millis();
+  }
 }
 
 void send_hello() {

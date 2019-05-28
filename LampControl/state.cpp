@@ -1,7 +1,6 @@
 #include "state.h"
 
 State state;
-//long drum_hit_timer;
 
 void init_ID() {
   state.ID = EEPROM.read(0) << 8 | EEPROM.read(1);
@@ -18,7 +17,7 @@ void req_indiv_setup() {
       while (millis() - wait < WAIT_FOR_REPLY) read_and_handle();
       if (state.indiv_var_set) break;
     }
-    if (!state.indiv_var_set) delay(10000);//power_down(); // Still haven't set up individual configurations after checking, go back to sleep
+//    if (!state.indiv_var_set) power_down(); // Still haven't set up individual configurations after checking, go back to sleep
   }
 }
 
@@ -33,9 +32,6 @@ void req_global_setup() {
       if (state.globals_set) break;
     }
     state.time_since_last_glob_req = millis();
-    //    if (!state.globals_set) {
-    //      power_down();
-    //    }
   }
 }
 
@@ -43,9 +39,9 @@ void main_loop() {
   // TODO encrypted messages (low priority)
   read_drum_hit();  // try to receive drum hit/hello, add to drum hit when received, set last_hello to millis()
   set_rgb();
-  if (millis() - state.last_hello > 30000) {
+  if (millis() - state.last_hello > 10000) {
     reset_vars();
-    //    power_down();
+    power_down();
   }
 }
 
@@ -72,14 +68,14 @@ void reset_vars() { // resets all variables that need to be reset
   // Do not reset ID and do not stop listening on radio
 }
 
-void power_down() { // powers down for a few seconds
-  Serial.println(F("S"));
+void power_down() {
+  Serial.println(F("Sleep"));
   //  LowPower.idle(SLEEP_8S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF,
   //                SPI_OFF, USART0_OFF, TWI_OFF);
-  radio_off();  // turn off radio
-  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); // Guaranteed to lower power consumption
+  radio_off();
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_ON); // Guaranteed to lower power consumption
   radio_on();
-  delay(5);   // wait for radio to fully turn on;
+  delay(50);   // wait for radio to fully turn on;
 }
 
 void read_and_handle() {
@@ -108,13 +104,10 @@ void read_drum_hit() {
       case DRUM_HIT_MSG :
         Serial.println(F("H"));
         state.last_hello = millis();
-//        drum_hit_timer = millis();
         add_drum_hit(&state.hits, get_drum_id(state.msg_buf), get_hit_intensity(state.msg_buf), get_hit_counter(state.msg_buf));
-        Serial.println(get_hit_intensity(state.msg_buf));
         break;
       case HELLO_MSG :
         state.last_hello = millis();
-        // Serial.print(F("h")); Serial.println(state.last_hello);
         break;
     }
   }

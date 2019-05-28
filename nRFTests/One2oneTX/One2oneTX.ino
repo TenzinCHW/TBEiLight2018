@@ -1,3 +1,4 @@
+#include <DigitalIO.h>
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -5,8 +6,10 @@
 #include "FastLED.h"
 
 #define PLOAD_WIDTH 32
+#define NUM_LED 4
+#define LED_PIN 3
 
-RF24 radio (10, 9);
+RF24 radio(7, 8);
 
 byte tx_buf[PLOAD_WIDTH];
 byte rx_buf[PLOAD_WIDTH];
@@ -19,7 +22,8 @@ CRGB leds[4];
 long start; // For timing
 
 void setup() {
-  // Wire.begin();
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
   Serial.begin(115200);
   radio.begin();
   printf_begin();
@@ -34,7 +38,7 @@ void setup() {
   radio.stopListening();
   radio.printDetails();
   Serial.println("Transmitter");
-  FastLED.addLeds<UCS1903B, 2>(leds, 4);
+  FastLED.addLeds<UCS1903B, LED_PIN>(leds, NUM_LED);
   for (int i = 0; i < 4; i++) {
     leds[i] = CRGB::Black;
   }
@@ -87,7 +91,7 @@ void wait_for_reply() {
   radio.startListening();
   long total = 0;
   long onemsgtime;
-  for (int i = 0; i < 1024; i++) {
+  for (int i = 0; i < 100; i++) {
     start = millis();
     tx_buf[PLOAD_WIDTH - 1] = i;
     while (!radio.available()) {
@@ -102,4 +106,3 @@ void wait_for_reply() {
   Serial.print(F("Total time: "));
   Serial.println(total);
 }
-
